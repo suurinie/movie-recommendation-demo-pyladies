@@ -37,7 +37,7 @@ def _profile_catalog(
 
 
 def test_default_configuration() -> None:
-    assert DEFAULT_VIEWERS == 50_000
+    assert DEFAULT_VIEWERS == 500
     assert DEFAULT_SEED == 42
     assert MIN_ACTIVITY == 12
     assert MAX_ACTIVITY == 60

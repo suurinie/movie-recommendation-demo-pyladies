@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from movie_demo.catalog import Catalog
 
-DEFAULT_VIEWERS = 50_000
+DEFAULT_VIEWERS = 500
 DEFAULT_SEED = 42
 MIN_ACTIVITY = 12
 MAX_ACTIVITY = 60

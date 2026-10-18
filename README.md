@@ -1,7 +1,7 @@
 # Movie recommendation demo
 
-A Python demo for generating sparse movie preferences for 50,000 synthetic
-viewers and training a zero-diagonal linear collaborative filtering model.
+A Python demo for generating sparse movie preferences for synthetic viewers
+and training a zero-diagonal linear collaborative filtering model.
 
 ## Setup
 
@@ -59,7 +59,7 @@ from movie_demo.catalog import load_catalog
 from movie_demo.profiles import iter_viewer_profiles
 
 catalog = load_catalog("imdb_top_1000.csv")
-profiles = iter_viewer_profiles(catalog, num_viewers=50_000, seed=42)
+profiles = iter_viewer_profiles(catalog, seed=42)
 for profile in islice(profiles, 3):
     print(profile)
 ```
@@ -71,8 +71,38 @@ preferences are drawn from movies matching the viewer's preferred genres;
 remaining choices add cross-genre variety. A profile's random stream is derived
 from the seed and viewer ID. Use `start_viewer_id` to generate independent
 chunks; concatenating chunks produces the same profiles as a single call.
-This step generates profiles only; it does not yet sample viewer-movie
+The current working default is 500 viewers. Pass `num_viewers=50_000` for the
+larger eventual dataset. Profile generation does not yet sample movie
 interactions.
+
+## Sparse liked-movie interactions
+
+Sample profiles into a sparse movie-by-viewer interaction matrix:
+
+```python
+from movie_demo.catalog import load_catalog
+from movie_demo.interactions import generate_interactions
+
+catalog = load_catalog("imdb_top_1000.csv")
+dataset = generate_interactions(catalog, seed=42)
+print(dataset.matrix.shape, dataset.matrix.nnz)
+```
+
+The working default is 500 viewers; each profile contributes its target number
+of unique binary likes. `dataset.matrix` is a SciPy CSC array with shape
+`(movies, viewers)`. It contains only observed positive likes; missing entries
+are unknown. Sampling combines a stable softmax of genre/director/actor affinity
+(weights 3.0, 2.0, and 1.5) with 10% exploration weighted by `log1p(votes)`.
+If no vote counts are available, exploration is uniform. Sampling is without
+replacement, and each viewer's randomness depends only on the seed and viewer
+ID, so changing `batch_size` does not change the matrix.
+
+Generation is performed in batches, but the returned sparse matrix and profiles
+are held in memory. The larger 50,000-viewer output is deferred until this
+working-size pipeline has been exercised.
+On the supplied 1,000-movie catalog with seed 42, the working default produced
+10,110 likes (about 2.02% density); exact counts depend on the generated
+profiles and seed.
 
 ## Development
 
@@ -84,7 +114,7 @@ uv run ruff format --check .
 
 ## Implementation status
 
-Catalog validation, sparse feature preparation, and reproducible viewer profiles
-are available. Interaction sampling, training, evaluation, and the optional UI
-are not implemented yet.
+Catalog validation, sparse feature preparation, reproducible viewer profiles,
+and sparse interaction sampling are available. Training, evaluation, and the
+optional UI are not implemented yet.
 See [PLAN.md](./PLAN.md) for the design and commit sequence.

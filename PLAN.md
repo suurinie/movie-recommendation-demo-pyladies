@@ -194,7 +194,8 @@ Add Streamlit only when implementing the UI.
 
 ### 3. feat: generate reproducible viewer taste profiles
 
-- Default to 50,000 viewers and seed 42.
+- Use 500 viewers as the working default; retain seed 42.
+- Scale up to 50,000 only after the working-size pipeline is validated.
 - Choose 1-3 preferred genres, up to 2 directors, and up to 4 actors per viewer.
 - Draw 70% of director and actor choices from movies matching preferred genres.
 - Store explicit preference strengths sampled from 0.5 to 1.5.
@@ -204,13 +205,17 @@ Add Streamlit only when implementing the UI.
 
 ### 4. feat: sample sparse liked-movie interactions
 
+- Use 500 viewers as the working default while validating the generator.
 - Start with affinity weights of 3.0 for genres, 2.0 for directors, and 1.5 for actors.
 - Use stable softmax probabilities with 10% popularity-weighted exploration.
 - Derive modest popularity weights from log-transformed vote counts.
 - Sample without replacement and process viewers in batches.
 - Initially omit era preferences to keep the generator explainable.
 - Produce binary H in CSC format with shape movies by viewers.
-- Test uniqueness, shape, activity, and independence from batch size.
+- Retain sparse interactions and process viewers in batches; do not allocate a
+  dense viewer-by-movie matrix.
+- Test uniqueness, shape, exact activity, taste alignment, and independence
+  from batch size.
 - Treat these parameters as starting values, not validated results.
 
 ### 5. feat: save generated datasets and expose generation CLI
@@ -220,7 +225,7 @@ Target command:
 ```bash
 uv run movie-demo generate \
   --catalog imdb_top_1000.csv \
-  --viewers 50000 \
+  --viewers 500 \
   --seed 42 \
   --output data/generated/demo
 ```
@@ -229,10 +234,12 @@ uv run movie-demo generate \
 - Save configuration, source hash, schema version, and summary statistics as JSON.
 - Refuse output-directory overwrites unless explicitly requested.
 - Test save/load round-trips, CLI execution, invalid inputs, and write errors.
+- Scale the viewer count up to 50,000 only after validating the working-size
+  pipeline; keep generated artifacts out of Git.
 
 ### 6. test: validate synthetic taste signal at demo scale
 
-- Run generation for 50,000 viewers using the real catalog.
+- After the working-size pipeline is validated, run generation for 50,000 viewers using the real catalog.
 - Report shape, nonzeros, density, activity distribution, coverage, and runtime.
 - Report popularity concentration and preferred-genre enrichment.
 - Use a controlled fixture to test that stronger preferences increase matching selections.
