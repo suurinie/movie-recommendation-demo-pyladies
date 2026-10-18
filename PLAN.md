@@ -249,7 +249,8 @@ uv run movie-demo generate \
 
 7. Add per-held-out-viewer input/target likes, ranking metrics, and the
    training-only popularity baseline.
-8. Add the regularized zero-diagonal model and numerical tests.
+8. Add the regularized zero-diagonal model with analytical solve and SGD,
+   plus numerical tests.
 9. Select regularization using validation viewers and report test metrics.
 10. Add the interactive Streamlit demo.
 
@@ -263,3 +264,20 @@ uv run movie-demo generate \
   input likes and target likes for recommendation evaluation.
 - Verify disjoint, exhaustive, reproducible partitions and exact matrix-column
   correspondence.
+
+## Training implementation
+
+- Minimize `||H - XH||_F^2 + lambda * ||X||_F^2` with `diag(X) = 0`.
+- Fit the analytical ridge solution from the movie Gram matrix and positive-
+  definite linear solve.
+- Also provide one scikit-learn `SGDRegressor` per movie row, excluding that
+  movie's own feature, with no intercept and L2 regularization matched by
+  `alpha = lambda / number_of_training_viewers`.
+- Cast interactions to floating point before computing the Gram matrix to
+  prevent integer dot-product overflow.
+- Ensure both fit only the training partition and predict held-out viewers from
+  their input likes, masking already-liked movies.
+- Compare the analytical fit against independent per-row solves and verify
+  sklearn SGD approaches the analytical objective on a controlled fixture.
+- On the 40,000-viewer training split, verify finite weights, exact zero
+  diagonal, and record a local timing/objective comparison.

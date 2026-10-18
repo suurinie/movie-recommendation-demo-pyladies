@@ -148,6 +148,60 @@ traceable. Splitting preserves movie rows and interaction values. For held-out
 viewers, a later evaluation step will divide their own likes into input and
 target movies.
 
+## Zero-diagonal item model
+
+The predictor `X` uses rows as target movies and columns as input movies. With
+`H` shaped `(movies, viewers)`, train it by minimizing:
+
+```text
+||H - XH||_F^2 + lambda * ||X||_F^2
+subject to diag(X) = 0
+```
+
+Each movie row is an independent ridge regression against all the other movie
+rows. Let `G = H H.T` and `P = inverse(G + lambda I)`. The constrained
+analytical solution is `X[i, j] = -P[i, j] / P[i, i]` for `i != j`, with a
+zero diagonal. The implementation uses a positive-definite linear solve, not
+an explicit matrix inverse. The solve is over movies, not viewers.
+
+```python
+from scipy.sparse import load_npz
+
+from movie_demo.model import fit_analytical, fit_sgd
+from movie_demo.splitting import split_viewers
+
+matrix = load_npz("data/synthetic/seed-42-50000/interactions.npz").tocsc()
+split = split_viewers(matrix, seed=42)
+model = fit_analytical(split.train, regularization=100.0)
+sgd_model = fit_sgd(split.train, regularization=100.0, max_iter=1_000, seed=42)
+
+# One validation viewer's scores; selected movies are masked to -inf.
+liked = split.validation[:, 0].toarray().ravel()
+scores = model.predict(liked)
+```
+
+`fit_sgd` uses scikit-learn's `SGDRegressor` once per target movie. Each
+regressor receives the training viewers as samples and all movie features
+except its target movie, enforcing the zero diagonal structurally. It uses
+`fit_intercept=False`, squared-error loss, and L2 penalty. Setting
+`alpha=lambda / number_of_training_viewers` matches the regularization scale of
+the stated sum-of-squares objective. `max_iter`, `tolerance`, and `seed` control
+its familiar sklearn training API. The analytical solve is exact and much
+faster for this 1,000-movie catalog; SGD is included to teach iterative fitting
+and provides a comparison.
+
+Both implementations fit only training viewers; validation/test viewer columns
+remain held out. The sparse binary interactions must be cast to floating point
+before forming `H H.T`; integer matrix multiplication can overflow even if the
+result is cast to float afterward.
+
+On the committed data, the 40,000-viewer training split with `lambda=100`
+produced a finite zero-diagonal analytical model in about 0.13 seconds. The
+scikit-learn fit with `max_iter=100` took about 30.2 seconds on the same
+environment and reached a training objective about 1.0002 times the analytical
+objective. These timings are a local reference, not a hardware-independent
+performance promise.
+
 ## Development
 
 ```bash
@@ -159,6 +213,6 @@ uv run ruff format --check .
 ## Implementation status
 
 Catalog validation, reproducible viewer profiles, sparse interaction sampling,
-and viewer-level splits are available. Model training, recommendation metrics,
-and the optional UI are not implemented yet.
+viewer-level splits, and analytical/SGD model fitting are available. Ranking
+evaluation and the optional UI are not implemented yet.
 See [PLAN.md](./PLAN.md) for the design and commit sequence.
