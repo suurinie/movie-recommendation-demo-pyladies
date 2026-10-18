@@ -254,7 +254,9 @@ uv run movie-demo generate \
 9. Select regularization using validation viewers; keep test viewers untouched
    until the selected model and evaluation protocol are fixed. (Implemented;
    final test reporting remains.)
-10. Add the interactive Streamlit demo. (Implemented.)
+10. Add the interactive Streamlit demo with search, an explicit
+    train/validation model-selection flow, and under-the-hood Python/tool
+    explanations. (Implemented; final test reporting remains separate.)
 
 ## Viewer-level split implementation
 

@@ -136,10 +136,19 @@ Enter part of a title (for example, `Totoro`) and select **Search** to show
 matches; the app does not search on each keystroke. At most 25 matching titles
 are shown at a time, so refine broad searches. Add a match to your favorites,
 or expand the alphabetical catalog to browse titles, directors, and years.
-Selected favorites can be removed from their chips. The app recommends up to 10
-unseen titles using the validation-selected `lambda=10000`; it refits on all
-available synthetic interactions for this demo. Recommendation scores are
-ranking signals, not probabilities.
+Selected favorites can be removed from their chips.
+
+Before recommendations are enabled, select candidate λ values and click
+**Train and compare**. The app fits each analytical model on the 40,000
+training viewers, chooses λ using 5,000 validation viewers, and leaves 5,000
+test viewers untouched. It compares validation NDCG@10 and Recall@10 with a
+popularity baseline, then uses the selected training-only model for favorites.
+The comparison shows one popularity-baseline result alongside each candidate,
+with separate charts for NDCG@10 and Recall@10 and KPI deltas versus popularity.
+The **Under the hood** section explains the tools and shows the actual Python
+implementations for splitting, fitting, and model selection. This is an
+analytical linear-algebra solve, not an epoch-based training animation.
+Recommendation scores are rankings, not probabilities.
 
 ## Viewer-level dataset splits
 

@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 from streamlit.testing.v1 import AppTest
 
+from movie_demo.app import _comparison_rows
 from movie_demo.demo import (
     MovieChoice,
     find_movies,
@@ -61,19 +62,36 @@ def test_find_movies_does_not_match_empty_search() -> None:
     assert find_movies(movies, "   ") == ((), 0)
 
 
-def test_app_search_runs_on_submit_and_adds_selected_favorite() -> None:
+def test_app_trains_before_search_recommendations() -> None:
     app_path = Path(__file__).parents[1] / "src" / "movie_demo" / "app.py"
     app = AppTest.from_file(str(app_path)).run()
     assert not app.exception
     assert len(app.selectbox) == 0
+    assert not app.subheader
 
-    app.text_input[0].set_value("Totoro")
+    app.multiselect[0].set_value([10_000.0]).run()
+    next(
+        button for button in app.button if button.label == "Train and compare"
+    ).click().run()
+    assert not app.exception
+    assert app.session_state["selection_result"].best_regularization == 10_000.0
+    assert app.session_state["selection_viewer_counts"] == (40_000, 5_000, 5_000)
+    assert app.dataframe
+    assert [item.value for item in app.subheader] == ["NDCG@10", "Recall@10"]
+    rows = _comparison_rows(app.session_state["selection_result"])
+    assert rows[-1]["Model"] == "Popularity baseline"
+    assert sum(row["Model"] == "Popularity baseline" for row in rows) == 1
+    assert rows[-2]["Model"] == "λ = 10000 (selected)"
+    assert "Recall@10" in rows[-1]
     assert len(app.selectbox) == 0
-    app.button[0].click().run()
+    app.text_input[0].set_value("Totoro")
+    next(button for button in app.button if button.label == "Search").click().run()
 
     assert not app.exception
     assert app.selectbox[0].options == ["Tonari no Totoro (1988, Hayao Miyazaki)"]
-    app.button[1].click().run()
+    next(
+        button for button in app.button if button.label == "Add movie to favorites"
+    ).click().run()
     assert app.multiselect[0].value
     assert any(item.value == "Recommended for you" for item in app.subheader)
 

@@ -1,3 +1,4 @@
+import inspect
 from collections.abc import Callable
 from pathlib import Path
 from typing import cast
@@ -11,13 +12,22 @@ from movie_demo.demo import (
     load_movie_index,
     recommend_movies,
 )
-from movie_demo.model import ItemLinearModel, fit_analytical
+from movie_demo.model import fit_analytical
+from movie_demo.model_selection import (
+    DEFAULT_CUTOFF,
+    DEFAULT_EVALUATION_SEED,
+    DEFAULT_INPUT_LIKES,
+    DEFAULT_LAMBDAS,
+    ModelSelectionResult,
+    evaluate_ranking,
+    select_regularization,
+)
+from movie_demo.splitting import DEFAULT_SPLIT_SEED, split_viewers
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data" / "synthetic" / "seed-42-50000"
 MATRIX_PATH = DATA_DIR / "interactions.npz"
 MOVIES_PATH = DATA_DIR / "movies.csv"
-DEMO_REGULARIZATION = 10_000.0
 
 
 @st.cache_data
@@ -26,9 +36,36 @@ def _load_movies(path: str) -> tuple[MovieChoice, ...]:
 
 
 @st.cache_resource
-def _load_demo_model(path: str, regularization: float) -> ItemLinearModel:
+def _load_interactions(path: str) -> csc_array:
     interactions = cast(csc_array, load_npz(path))
-    return fit_analytical(interactions, regularization=regularization)
+    return interactions
+
+
+@st.cache_resource
+def _train_and_select(
+    path: str,
+    candidates: tuple[float, ...],
+    split_seed: int,
+    evaluation_seed: int,
+    input_likes: int,
+    cutoff: int,
+) -> tuple[ModelSelectionResult, tuple[int, int, int]]:
+    interactions = _load_interactions(path)
+    split = split_viewers(interactions, seed=split_seed)
+    result = select_regularization(
+        split.train,
+        split.validation,
+        candidates=candidates,
+        input_likes=input_likes,
+        k=cutoff,
+        seed=evaluation_seed,
+    )
+    counts = (
+        split.train.shape[1],
+        split.validation.shape[1],
+        split.test.shape[1],
+    )
+    return result, counts
 
 
 def _movie_label(movie: MovieChoice) -> str:
@@ -42,6 +79,217 @@ def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
     return label
 
 
+def _lambda_label(value: float) -> str:
+    return f"{value:g}"
+
+
+def _comparison_rows(result: ModelSelectionResult) -> list[dict[str, str | float]]:
+    rows = [
+        {
+            "Model": (
+                f"λ = {score.regularization:g}"
+                + (
+                    " (selected)"
+                    if score.regularization == result.best_regularization
+                    else ""
+                )
+            ),
+            "NDCG@10": score.metrics.ndcg_at_k,
+            "Recall@10": score.metrics.recall_at_k,
+        }
+        for score in result.scores
+    ]
+    rows.append(
+        {
+            "Model": "Popularity baseline",
+            "NDCG@10": result.popularity_metrics.ndcg_at_k,
+            "Recall@10": result.popularity_metrics.recall_at_k,
+        }
+    )
+    return rows
+
+
+def _show_model_selection(
+    movie_count: int,
+    total_viewers: int,
+) -> ModelSelectionResult | None:
+    _ = st.header("1. Train and compare models")
+    _ = st.write(
+        " ".join(
+            (
+                "Choose candidate regularization values and run the analytical fit.",
+                "Fit on training viewers; validate λ; keep test viewers untouched.",
+            )
+        )
+    )
+    _ = st.caption(
+        " ".join(
+            (
+                f"Dataset: {movie_count:,} movies × {total_viewers:,} viewers.",
+                "Retrain after changing λ values.",
+            )
+        )
+    )
+    candidates = st.multiselect(
+        "Candidate λ values",
+        options=DEFAULT_LAMBDAS,
+        default=DEFAULT_LAMBDAS,
+        format_func=_lambda_label,
+        key="lambda_candidates",
+    )
+    selected_candidates = tuple(float(value) for value in candidates)
+    train_clicked = st.button(
+        "Train and compare",
+        type="primary",
+        disabled=not selected_candidates,
+        key="train_models",
+    )
+    if not selected_candidates:
+        _ = st.info("Select at least one λ value to run model selection.")
+    if train_clicked:
+        try:
+            with st.spinner(
+                f"Fitting {len(selected_candidates)} models and evaluating "
+                + "validation recommendations..."
+            ):
+                result, viewer_counts = _train_and_select(
+                    str(MATRIX_PATH),
+                    selected_candidates,
+                    DEFAULT_SPLIT_SEED,
+                    DEFAULT_EVALUATION_SEED,
+                    DEFAULT_INPUT_LIKES,
+                    DEFAULT_CUTOFF,
+                )
+        except (OSError, ValueError, ArithmeticError) as exc:
+            _ = st.error(f"Model selection failed: {exc}")
+            return None
+        st.session_state["selection_result"] = result
+        st.session_state["selection_viewer_counts"] = viewer_counts
+
+    result = cast(ModelSelectionResult | None, st.session_state.get("selection_result"))
+    if result is None:
+        _ = st.info("Run the comparison to train models and enable recommendations.")
+        return None
+
+    viewer_counts = cast(
+        tuple[int, int, int],
+        st.session_state.get("selection_viewer_counts", (0, 0, 0)),
+    )
+    train_count, validation_count, test_count = viewer_counts
+    best_score = next(
+        score
+        for score in result.scores
+        if score.regularization == result.best_regularization
+    )
+    baseline_metrics = result.popularity_metrics
+    metric_col, ndcg_col, recall_col, splits_col = st.columns(4)
+    _ = metric_col.metric(
+        "Selected λ",
+        f"{result.best_regularization:g}",
+        help="Chosen by validation NDCG@10; this is not measured on test viewers.",
+    )
+    _ = ndcg_col.metric(
+        "Validation NDCG@10",
+        f"{best_score.metrics.ndcg_at_k:.4f}",
+        delta=(
+            f"{best_score.metrics.ndcg_at_k - baseline_metrics.ndcg_at_k:+.4f} "
+            "vs popularity"
+        ),
+    )
+    _ = recall_col.metric(
+        "Validation Recall@10",
+        f"{best_score.metrics.recall_at_k:.4f}",
+        delta=(
+            f"{best_score.metrics.recall_at_k - baseline_metrics.recall_at_k:+.4f} "
+            "vs popularity"
+        ),
+    )
+    _ = splits_col.metric(
+        "Viewers (train / val / test)",
+        f"{train_count:,} / {validation_count:,} / {test_count:,}",
+    )
+
+    score_rows = _comparison_rows(result)
+    _ = st.dataframe(  # pyright: ignore[reportUnknownMemberType]
+        score_rows, hide_index=True, width="stretch"
+    )
+
+    ndcg_chart_col, recall_chart_col = st.columns(2)
+    _ = ndcg_chart_col.subheader("NDCG@10")
+    _ = ndcg_chart_col.bar_chart(  # pyright: ignore[reportUnknownMemberType]
+        score_rows, x="Model", y="NDCG@10"
+    )
+    _ = recall_chart_col.subheader("Recall@10")
+    _ = recall_chart_col.bar_chart(  # pyright: ignore[reportUnknownMemberType]
+        score_rows, x="Model", y="Recall@10"
+    )
+    _ = st.caption(
+        " ".join(
+            (
+                "Each chart shows the popularity baseline once for direct comparison.",
+                "NDCG rewards rank position; Recall counts held-out likes in top ten.",
+            )
+        )
+    )
+    return result
+
+
+def _show_implementation_details() -> None:
+    with st.expander("Under the hood: Python and the chosen tools"):
+        _ = st.markdown(
+            """
+This demo keeps the data and model pipeline in ordinary Python modules. The
+web interface is only the front end:
+
+- **NumPy** makes the seeded viewer split and handles dense linear algebra.
+- **SciPy sparse** stores the movie-by-viewer likes matrix efficiently;
+  **SciPy linalg** solves the regularized linear system.
+- **Streamlit** provides the interactive workflow without a separate
+  front-end stack.
+- **uv** manages the Python project and lockfile; **pytest** checks behavior;
+  **Ruff** checks Python style.
+
+The fit is analytical, not an epoch-based optimizer: each λ produces one
+regularized solve. The comparison teaches model selection without making SGD
+the focus.
+"""
+        )
+        with st.expander("How do we split viewers?"):
+            _ = st.markdown("Whole-viewer splits keep held-out likes out of training.")
+            _ = st.code(inspect.getsource(split_viewers), language="python")
+        with st.expander("What does the model fit?"):
+            _ = st.markdown(
+                " ".join(
+                    (
+                        "Objective: `||H - XH||_F² + λ||X||_F²`, with `diag(X) = 0`.",
+                        "`H` is movies × viewers; `X` predicts movie scores.",
+                    )
+                )
+            )
+            _ = st.code(inspect.getsource(fit_analytical), language="python")
+        with st.expander("How is λ selected?"):
+            _ = st.markdown(
+                " ".join(
+                    (
+                        "Use 5 validation likes as input; hold the rest out.",
+                        "Compare every λ on the same split; choose mean NDCG@10.",
+                        "Recall@10 breaks selection ties.",
+                    )
+                )
+            )
+            _ = st.code(inspect.getsource(select_regularization), language="python")
+        with st.expander("How are recommendations evaluated?"):
+            _ = st.markdown(
+                " ".join(
+                    (
+                        "Recall@10 counts held-out likes in the top ten.",
+                        "NDCG@10 also rewards relevant movies ranked nearer the top.",
+                    )
+                )
+            )
+            _ = st.code(inspect.getsource(evaluate_ranking), language="python")
+
+
 def main() -> None:
     st.set_page_config(page_title="Movie favorites", page_icon="🎬")
     _ = st.title("Movie recommendations")
@@ -52,13 +300,22 @@ def main() -> None:
 
     try:
         movies = _load_movies(str(MOVIES_PATH))
-        interactions = cast(csc_array, load_npz(MATRIX_PATH))
+        interactions = _load_interactions(str(MATRIX_PATH))
         if interactions.shape[0] != len(movies):
             raise ValueError("Movie index rows do not match the interaction matrix.")
-        model = _load_demo_model(str(MATRIX_PATH), DEMO_REGULARIZATION)
     except (OSError, ValueError) as exc:
         _ = st.error(f"Could not load the movie demo data: {exc}")
         st.stop()
+
+    selection_result = _show_model_selection(
+        interactions.shape[0], interactions.shape[1]
+    )
+    _show_implementation_details()
+    _ = st.header("2. Try your favorites")
+    _ = st.write(
+        "Search or browse for inspiration. Recommendations become available "
+        + "after training and comparing models above."
+    )
 
     if "favorite_movie_ids" not in st.session_state:
         st.session_state.favorite_movie_ids = []
@@ -126,8 +383,10 @@ def main() -> None:
         help="You can remove a selection with the x on its chip.",
     )
 
-    if favorite_ids:
-        recommendations = recommend_movies(model, movies, favorite_ids, limit=10)
+    if favorite_ids and selection_result is not None:
+        recommendations = recommend_movies(
+            selection_result.best_model, movies, favorite_ids, limit=10
+        )
         _ = st.subheader("Recommended for you")
         if recommendations:
             _ = st.dataframe(  # pyright: ignore[reportUnknownMemberType]
@@ -148,12 +407,13 @@ def main() -> None:
         _ = st.caption(
             " ".join(
                 (
-                    "This demo model uses all synthetic "
-                    + "interactions and validation-selected λ=10,000.",
+                    f"Using λ={selection_result.best_regularization:g} model.",
                     "Scores are rankings, not probabilities.",
                 )
             )
         )
+    elif favorite_ids:
+        _ = st.info("Train and compare models above to see recommendations.")
     else:
         _ = st.info("Add at least one favorite to get recommendations.")
 
