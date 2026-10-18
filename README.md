@@ -124,6 +124,30 @@ The input CSV remains local and Git-ignored.
 The checked-in matrix contains 1,013,210 positive likes (2.02642% density),
 and the compact index contains 1,000 rows.
 
+## Viewer-level dataset splits
+
+Use a seeded NumPy permutation to hold out entire viewers before fitting. This
+keeps every interaction from a validation or test viewer out of training, which
+matches the task of recommending for a new viewer. Scikit-learn is not needed.
+
+```python
+from scipy.sparse import load_npz
+
+from movie_demo.splitting import split_viewers
+
+matrix = load_npz("data/synthetic/seed-42-50000/interactions.npz").tocsc()
+split = split_viewers(matrix, seed=42)
+print(split.train.shape, split.validation.shape, split.test.shape)
+```
+
+The default partition is 80% training, 10% validation, and 10% test. Use the
+training matrix to fit the model and validation viewers to choose settings; keep
+test viewers untouched until final evaluation. Each returned group includes its
+sparse matrix and sorted original viewer IDs, so viewer identity remains
+traceable. Splitting preserves movie rows and interaction values. For held-out
+viewers, a later evaluation step will divide their own likes into input and
+target movies.
+
 ## Development
 
 ```bash
@@ -134,7 +158,7 @@ uv run ruff format --check .
 
 ## Implementation status
 
-Catalog validation, sparse feature preparation, reproducible viewer profiles,
-and sparse interaction sampling are available. Training, evaluation, and the
-optional UI are not implemented yet.
+Catalog validation, reproducible viewer profiles, sparse interaction sampling,
+and viewer-level splits are available. Model training, recommendation metrics,
+and the optional UI are not implemented yet.
 See [PLAN.md](./PLAN.md) for the design and commit sequence.

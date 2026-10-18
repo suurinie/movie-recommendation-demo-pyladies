@@ -247,7 +247,19 @@ uv run movie-demo generate \
 
 ### Subsequent commits
 
-7. Add viewer splits, ranking metrics, and the training-only popularity baseline.
+7. Add per-held-out-viewer input/target likes, ranking metrics, and the
+   training-only popularity baseline.
 8. Add the regularized zero-diagonal model and numerical tests.
 9. Select regularization using validation viewers and report test metrics.
 10. Add the interactive Streamlit demo.
+
+## Viewer-level split implementation
+
+- Use NumPy's seeded random generator; do not add scikit-learn for splitting.
+- Partition viewer IDs 80/10/10 by default, keeping each viewer's full column
+  in one partition.
+- Return each partition's CSC matrix and sorted original viewer IDs.
+- Fit only on training viewers. Later split validation/test viewer columns into
+  input likes and target likes for recommendation evaluation.
+- Verify disjoint, exhaustive, reproducible partitions and exact matrix-column
+  correspondence.
