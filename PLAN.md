@@ -196,9 +196,9 @@ Add Streamlit only when implementing the UI.
 
 - Default to 50,000 viewers and seed 42.
 - Choose 1-3 preferred genres, up to 2 directors, and up to 4 actors per viewer.
-- Sample directors and actors partly from genre-matching movies.
-- Store explicit preference strengths.
-- Target around 20 interactions on average, bounded to 12-60.
+- Draw 70% of director and actor choices from movies matching preferred genres.
+- Store explicit preference strengths sampled from 0.5 to 1.5.
+- Sample activity targets from a normal distribution centered at 20, clipped to 12-60.
 - Derive per-viewer random generators from the master seed and viewer ID.
 - Test determinism, preference validity, and activity bounds.
 

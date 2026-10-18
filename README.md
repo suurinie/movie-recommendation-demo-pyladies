@@ -34,7 +34,7 @@ All nine source columns are required: `Series_Title`, `Released_Year`, `Genre`,
 Other cells may be blank: missing years, directors, and votes become `None`,
 and missing genres/cast become empty tuples. Missing metadata counts appear
 in the summary. Malformed vote counts and CSV structure are rejected.
-Malformed years (including the source's `PG` value) become unavailable and
+Malformed years (such as a misplaced `PG` value) become unavailable and
 are recorded in the summary and reported as warnings on stderr.
 
 The loader assigns zero-based movie IDs in source-row order, hashes the exact
@@ -48,6 +48,32 @@ intended to stay unchanged if the source is reordered.
 The repository's software license does not establish redistribution rights
 for the externally sourced CSV.
 
+## Synthetic viewer profiles
+
+Reproducible hidden taste profiles are available as a Python iterator:
+
+```python
+from itertools import islice
+
+from movie_demo.catalog import load_catalog
+from movie_demo.profiles import iter_viewer_profiles
+
+catalog = load_catalog("imdb_top_1000.csv")
+profiles = iter_viewer_profiles(catalog, num_viewers=50_000, seed=42)
+for profile in islice(profiles, 3):
+    print(profile)
+```
+
+Each profile has 1-3 preferred genres, up to 2 directors, up to 4 actors, and
+an individual target of 12-60 liked movies (sampled around 20). Preference
+strengths range from 0.5 to 1.5. About 70% of selected director and actor
+preferences are drawn from movies matching the viewer's preferred genres;
+remaining choices add cross-genre variety. A profile's random stream is derived
+from the seed and viewer ID. Use `start_viewer_id` to generate independent
+chunks; concatenating chunks produces the same profiles as a single call.
+This step generates profiles only; it does not yet sample viewer-movie
+interactions.
+
 ## Development
 
 ```bash
@@ -58,6 +84,7 @@ uv run ruff format --check .
 
 ## Implementation status
 
-Catalog validation, metadata parsing, and sparse feature preparation are available.
-Generation, training, evaluation, and the optional UI are not implemented yet.
+Catalog validation, sparse feature preparation, and reproducible viewer profiles
+are available. Interaction sampling, training, evaluation, and the optional UI
+are not implemented yet.
 See [PLAN.md](./PLAN.md) for the design and commit sequence.
