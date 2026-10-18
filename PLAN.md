@@ -248,11 +248,13 @@ uv run movie-demo generate \
 ### Subsequent commits
 
 7. Add per-held-out-viewer input/target likes, ranking metrics, and the
-   training-only popularity baseline.
+   training-only popularity baseline. (Completed within model selection.)
 8. Add the regularized zero-diagonal model with analytical solve and SGD,
-   plus numerical tests.
-9. Select regularization using validation viewers and report test metrics.
-10. Add the interactive Streamlit demo.
+   plus numerical tests. (Implemented.)
+9. Select regularization using validation viewers; keep test viewers untouched
+   until the selected model and evaluation protocol are fixed. (Implemented;
+   final test reporting remains.)
+10. Add the interactive Streamlit demo. (Implemented.)
 
 ## Viewer-level split implementation
 
@@ -281,3 +283,16 @@ uv run movie-demo generate \
   sklearn SGD approaches the analytical objective on a controlled fixture.
 - On the 40,000-viewer training split, verify finite weights, exact zero
   diagonal, and record a local timing/objective comparison.
+
+## Validation-based regularization selection
+
+- For each validation viewer, deterministically select five known likes as
+  model inputs and use all remaining known likes as ranking targets.
+- Reuse the same input/target split for every candidate lambda.
+- Select by mean NDCG@10, using mean Recall@10 as a tie-breaker; mask input
+  movies before ranking.
+- Compare against a training-only popularity baseline and leave test viewers
+  untouched until final evaluation.
+- Expose the workflow in the Python API and `movie-demo select-lambda` CLI.
+- Test holdout disjointness, deterministic behavior, metric definitions,
+  validation-only selection, and CLI output.

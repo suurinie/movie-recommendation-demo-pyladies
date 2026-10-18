@@ -4,8 +4,9 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
+import numpy as np
 import pytest
-from scipy.sparse import load_npz
+from scipy.sparse import csc_array, load_npz, save_npz
 
 from movie_demo import main
 
@@ -156,3 +157,47 @@ def test_generate_command_preserves_existing_output(
     assert exc_info.value.code == 2
     assert marker.read_text() == "keep"
     assert "already exists" in capsys.readouterr().err
+
+
+def test_select_lambda_command_reports_validation_results(
+    monkeypatch, capsys, tmp_path
+):
+    rng = np.random.default_rng(31)
+    dense = np.zeros((8, 300), dtype=np.uint8)
+    dense[0:2] = 1
+    dense[2] = rng.binomial(1, 0.6, 300)
+    dense[3] = dense[2] | rng.binomial(1, 0.1, 300)
+    dense[4] = rng.binomial(1, 0.25, 300)
+    dense[5] = dense[4] | rng.binomial(1, 0.1, 300)
+    dense[6] = 1
+    dense[7] = rng.binomial(1, 0.2, 300)
+    matrix_path = tmp_path / "interactions.npz"
+    save_npz(matrix_path, csc_array(dense))
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "movie-demo",
+            "select-lambda",
+            "--matrix",
+            str(matrix_path),
+            "--input-likes",
+            "2",
+            "--k",
+            "3",
+            "--lambdas",
+            "1",
+            "10",
+        ],
+    )
+
+    main()
+
+    summary = json.loads(capsys.readouterr().out)
+    assert summary["training_viewers"] == 240
+    assert summary["validation_viewers"] == 30
+    assert summary["test_viewers"] == 30
+    assert summary["best_lambda"] in (1.0, 10.0)
+    assert summary["selection_metric"] == "ndcg_at_k"
+    assert [row["lambda"] for row in summary["validation_scores"]] == [1.0, 10.0]
+    assert set(summary["popularity_baseline"]) == {"recall_at_k", "ndcg_at_k"}

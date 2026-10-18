@@ -124,6 +124,23 @@ The input CSV remains local and Git-ignored.
 The checked-in matrix contains 1,013,210 positive likes (2.02642% density),
 and the compact index contains 1,000 rows.
 
+## Interactive movie picker
+
+Start the Streamlit app from the project root:
+
+```bash
+uv run streamlit run src/movie_demo/app.py
+```
+
+Enter part of a title (for example, `Totoro`) and select **Search** to show
+matches; the app does not search on each keystroke. At most 25 matching titles
+are shown at a time, so refine broad searches. Add a match to your favorites,
+or expand the alphabetical catalog to browse titles, directors, and years.
+Selected favorites can be removed from their chips. The app recommends up to 10
+unseen titles using the validation-selected `lambda=10000`; it refits on all
+available synthetic interactions for this demo. Recommendation scores are
+ranking signals, not probabilities.
+
 ## Viewer-level dataset splits
 
 Use a seeded NumPy permutation to hold out entire viewers before fitting. This
@@ -145,8 +162,8 @@ training matrix to fit the model and validation viewers to choose settings; keep
 test viewers untouched until final evaluation. Each returned group includes its
 sparse matrix and sorted original viewer IDs, so viewer identity remains
 traceable. Splitting preserves movie rows and interaction values. For held-out
-viewers, a later evaluation step will divide their own likes into input and
-target movies.
+viewers, model selection divides their likes into known inputs and held-out
+targets for ranking evaluation.
 
 ## Zero-diagonal item model
 
@@ -195,6 +212,56 @@ remain held out. The sparse binary interactions must be cast to floating point
 before forming `H H.T`; integer matrix multiplication can overflow even if the
 result is cast to float afterward.
 
+## Select regularization on validation viewers
+
+Choose `lambda` by ranking held-out validation likes, not by training loss.
+For each validation viewer, five likes are selected deterministically as
+recommendation inputs; all their other known likes are targets. The same
+input/target split is reused for every candidate. Already-liked movies are
+excluded from ranking. The default candidates are `1, 10, 100, 1000, 10000`,
+and `100000`; NDCG@10 is the primary selection metric (Recall@10 breaks exact ties).
+A popularity baseline uses only training-viewer like counts. Test viewers are
+not used for model selection.
+
+Run the selection on the checked-in dataset:
+
+```bash
+uv run movie-demo select-lambda \
+  --matrix data/synthetic/seed-42-50000/interactions.npz
+```
+
+The JSON output contains the selected lambda, per-candidate validation
+Recall@10/NDCG@10, and the popularity baseline. The validation input selection
+and viewer split have independent seeds (`--evaluation-seed` and
+`--split-seed`). Use `--lambdas 10 100 1000` to provide a custom positive
+candidate grid.
+
+The Python API exposes the same workflow:
+
+```python
+from scipy.sparse import load_npz
+
+from movie_demo.model_selection import select_regularization
+from movie_demo.splitting import split_viewers
+
+matrix = load_npz("data/synthetic/seed-42-50000/interactions.npz").tocsc()
+split = split_viewers(matrix, seed=42)
+selection = select_regularization(split.train, split.validation)
+print(selection.best_regularization, selection.scores)
+```
+
+Recall@k divides retrieved target likes by all target likes for that viewer;
+NDCG@k uses binary relevance and the ideal ranking for that viewer's target
+set. Metrics are averaged across validation viewers. After choosing lambda,
+the held-out test group can be used once for final reporting; it must not
+influence candidate values or selection.
+
+With the default split and evaluation seeds on the committed matrix, the
+selected value is `lambda=10000` (NDCG@10 0.04151, Recall@10 0.02512). The
+training-only popularity baseline scores 0.02827 and 0.01766, respectively.
+These are validation results for this synthetic dataset, not estimates of
+real-world recommendation quality.
+
 On the committed data, the 40,000-viewer training split with `lambda=100`
 produced a finite zero-diagonal analytical model in about 0.13 seconds. The
 scikit-learn fit with `max_iter=100` took about 30.2 seconds on the same
@@ -213,6 +280,7 @@ uv run ruff format --check .
 ## Implementation status
 
 Catalog validation, reproducible viewer profiles, sparse interaction sampling,
-viewer-level splits, and analytical/SGD model fitting are available. Ranking
-evaluation and the optional UI are not implemented yet.
+viewer-level splits, analytical/SGD model fitting, and validation-based
+regularization selection, and the interactive movie picker are available.
+Final test reporting is not implemented yet.
 See [PLAN.md](./PLAN.md) for the design and commit sequence.
