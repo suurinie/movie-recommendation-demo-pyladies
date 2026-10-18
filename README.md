@@ -98,11 +98,31 @@ replacement, and each viewer's randomness depends only on the seed and viewer
 ID, so changing `batch_size` does not change the matrix.
 
 Generation is performed in batches, but the returned sparse matrix and profiles
-are held in memory. The larger 50,000-viewer output is deferred until this
-working-size pipeline has been exercised.
+are held in memory.
 On the supplied 1,000-movie catalog with seed 42, the working default produced
 10,110 likes (about 2.02% density); exact counts depend on the generated
 profiles and seed.
+
+To build the larger static matrix and save just that matrix plus its compact
+movie index:
+
+```bash
+uv run movie-demo generate \
+  --catalog imdb_top_1000.csv \
+  --viewers 50000 \
+  --seed 42 \
+  --output data/synthetic/seed-42-50000
+```
+
+The output directory contains `interactions.npz` and `movies.csv`. The matrix
+has shape `(movies, viewers)`; row `i` refers to `movie_id=i` in the CSV.
+`movies.csv` stores only `movie_id,title,director,year`. Viewer profiles,
+genres, cast, and the original catalog are not copied into the output.
+Generation refuses to overwrite an existing output directory. The 50,000-viewer
+seed-42 dataset and its movie index are committed in `data/synthetic/`.
+The input CSV remains local and Git-ignored.
+The checked-in matrix contains 1,013,210 positive likes (2.02642% density),
+and the compact index contains 1,000 rows.
 
 ## Development
 

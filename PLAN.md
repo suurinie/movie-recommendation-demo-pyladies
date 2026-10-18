@@ -220,30 +220,30 @@ Add Streamlit only when implementing the UI.
 
 ### 5. feat: save generated datasets and expose generation CLI
 
-Target command:
+Target command for the committed 50,000-viewer matrix:
 
 ```bash
 uv run movie-demo generate \
   --catalog imdb_top_1000.csv \
-  --viewers 500 \
+  --viewers 50000 \
   --seed 42 \
-  --output data/generated/demo
+  --output data/synthetic/seed-42-50000
 ```
 
-- Save sparse NPZ interactions, the movie mapping, and compressed JSON Lines profiles.
-- Save configuration, source hash, schema version, and summary statistics as JSON.
-- Refuse output-directory overwrites unless explicitly requested.
+- Save the sparse movie-by-viewer NPZ matrix and a CSV containing only
+  `movie_id,title,director,year`.
+- Do not persist hidden profiles or other catalog metadata in this output.
+- Refuse to overwrite an existing output directory.
 - Test save/load round-trips, CLI execution, invalid inputs, and write errors.
-- Scale the viewer count up to 50,000 only after validating the working-size
-  pipeline; keep generated artifacts out of Git.
+- Commit the seed-42 50,000-viewer matrix and index; keep the input CSV ignored.
 
 ### 6. test: validate synthetic taste signal at demo scale
 
-- After the working-size pipeline is validated, run generation for 50,000 viewers using the real catalog.
+- Validate the committed 50,000-viewer matrix using the real catalog.
 - Report shape, nonzeros, density, activity distribution, coverage, and runtime.
 - Report popularity concentration and preferred-genre enrichment.
 - Use a controlled fixture to test that stronger preferences increase matching selections.
-- Document measured results and the reproduction command; do not commit generated data.
+- Document measured results and the reproduction command; do not commit extra generated data.
 
 ### Subsequent commits
 
