@@ -79,6 +79,14 @@ def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
     return label
 
 
+def _add_favorite(movie: MovieChoice) -> bool:
+    favorite_ids = cast(list[int], st.session_state["favorite_movie_ids"])
+    if movie.movie_id in favorite_ids:
+        return False
+    st.session_state["favorite_movie_ids"] = [*favorite_ids, movie.movie_id]
+    return True
+
+
 def _lambda_label(value: float) -> str:
     return f"{value:g}"
 
@@ -346,12 +354,7 @@ def main() -> None:
                     + "Refine your search to narrow the list."
                 )
             if st.button("Add movie to favorites"):
-                favorite_ids = list(
-                    cast(list[int], st.session_state.favorite_movie_ids)
-                )
-                if selected_match.movie_id not in favorite_ids:
-                    favorite_ids.append(selected_match.movie_id)
-                    st.session_state.favorite_movie_ids = favorite_ids
+                if _add_favorite(selected_match):
                     st.rerun()
                 else:
                     _ = st.info("That movie is already in your favorites.")
@@ -362,6 +365,18 @@ def main() -> None:
 
     with st.expander("Browse the movie list"):
         _ = st.caption(f"{len(movies):,} titles, sorted alphabetically.")
+        browse_movies = tuple(sorted(movies, key=lambda item: item.title.casefold()))
+        selected_browse_movie = st.selectbox(
+            "Choose from the alphabetical list",
+            options=browse_movies,
+            format_func=_movie_label,
+            key="browse_movie_choice",
+        )
+        if st.button("Add browsed movie to favorites"):
+            if _add_favorite(selected_browse_movie):
+                st.rerun()
+            else:
+                _ = st.info("That movie is already in your favorites.")
         _ = st.dataframe(  # pyright: ignore[reportUnknownMemberType]
             [
                 {
@@ -369,7 +384,7 @@ def main() -> None:
                     "Year": movie.year,
                     "Director": movie.director,
                 }
-                for movie in sorted(movies, key=lambda item: item.title.casefold())
+                for movie in browse_movies
             ],
             hide_index=True,
             width="stretch",

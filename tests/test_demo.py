@@ -66,7 +66,7 @@ def test_app_trains_before_search_recommendations() -> None:
     app_path = Path(__file__).parents[1] / "src" / "movie_demo" / "app.py"
     app = AppTest.from_file(str(app_path)).run()
     assert not app.exception
-    assert len(app.selectbox) == 0
+    assert [box.label for box in app.selectbox] == ["Choose from the alphabetical list"]
     assert not app.subheader
 
     app.multiselect[0].set_value([10_000.0]).run()
@@ -83,16 +83,32 @@ def test_app_trains_before_search_recommendations() -> None:
     assert sum(row["Model"] == "Popularity baseline" for row in rows) == 1
     assert rows[-2]["Model"] == "λ = 10000 (selected)"
     assert "Recall@10" in rows[-1]
-    assert len(app.selectbox) == 0
+    browse_selector = next(
+        box for box in app.selectbox if box.label == "Choose from the alphabetical list"
+    )
+    assert browse_selector.options
+    browse_selector.set_value(browse_selector.options[0]).run()
+    next(
+        button
+        for button in app.button
+        if button.label == "Add browsed movie to favorites"
+    ).click().run()
+    assert not app.exception
+    browsed_movie = app.session_state["browse_movie_choice"]
+    assert app.session_state["favorite_movie_ids"] == [browsed_movie.movie_id]
+
     app.text_input[0].set_value("Totoro")
     next(button for button in app.button if button.label == "Search").click().run()
 
     assert not app.exception
-    assert app.selectbox[0].options == ["Tonari no Totoro (1988, Hayao Miyazaki)"]
+    search_selector = next(
+        box for box in app.selectbox if box.label == "Matching movies"
+    )
+    assert search_selector.options == ["Tonari no Totoro (1988, Hayao Miyazaki)"]
     next(
         button for button in app.button if button.label == "Add movie to favorites"
     ).click().run()
-    assert app.multiselect[0].value
+    assert len(app.session_state["favorite_movie_ids"]) == 2
     assert any(item.value == "Recommended for you" for item in app.subheader)
 
 

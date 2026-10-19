@@ -25,8 +25,8 @@ synthetic dataset; you do not need to download a movie catalog or generate data.
    select **Train and compare**.
 2. Compare validation NDCG@10 and Recall@10 for each model against the
    popularity baseline. The selected λ is chosen using validation data.
-3. In **Try your favorites**, search for a movie (try `Totoro`) or browse the
-   catalog, then select a few favorites.
+3. In **Try your favorites**, search for a movie (try `Totoro`) or choose one
+   from the alphabetical browse list, then add a few favorites.
 4. Explore the recommendations. They are ranked suggestions, not probabilities.
 
 Training uses synthetic likes from 40,000 viewers, validation uses 5,000
