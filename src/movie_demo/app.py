@@ -1,5 +1,5 @@
 import inspect
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import cast
 
@@ -79,11 +79,24 @@ def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
     return label
 
 
-def _add_favorite(movie: MovieChoice) -> bool:
-    favorite_ids = cast(list[int], st.session_state["favorite_movie_ids"])
-    if movie.movie_id in favorite_ids:
+def _merge_favorite_ids(
+    favorite_ids: Iterable[int], movie_ids: Iterable[int]
+) -> list[int]:
+    merged_ids = list(favorite_ids)
+    known_ids = set(merged_ids)
+    for movie_id in movie_ids:
+        if movie_id not in known_ids:
+            merged_ids.append(movie_id)
+            known_ids.add(movie_id)
+    return merged_ids
+
+
+def _add_favorites(movie_ids: Iterable[int]) -> bool:
+    current_ids = cast(list[int], st.session_state["favorite_movie_ids"])
+    updated_ids = _merge_favorite_ids(current_ids, movie_ids)
+    if updated_ids == current_ids:
         return False
-    st.session_state["favorite_movie_ids"] = [*favorite_ids, movie.movie_id]
+    st.session_state["favorite_movie_ids"] = updated_ids
     return True
 
 
@@ -301,7 +314,7 @@ the focus.
 def main() -> None:
     st.set_page_config(page_title="Movie favorites", page_icon="🎬")
     _ = st.title("Movie recommendations")
-    _ = st.write("Search for favorites and browse the catalog for recommendations.")
+    _ = st.write("Search for favorites or select them from the checkbox menu.")
     if not MATRIX_PATH.is_file() or not MOVIES_PATH.is_file():
         _ = st.error("Demo data missing. Run with data/synthetic/seed-42-50000 files.")
         st.stop()
@@ -354,7 +367,7 @@ def main() -> None:
                     + "Refine your search to narrow the list."
                 )
             if st.button("Add movie to favorites"):
-                if _add_favorite(selected_match):
+                if _add_favorites((selected_match.movie_id,)):
                     st.rerun()
                 else:
                     _ = st.info("That movie is already in your favorites.")
@@ -362,33 +375,6 @@ def main() -> None:
             _ = st.info(f"No movie titles contain {query!r}.")
     else:
         _ = st.caption("Enter part of a title and select Search to see matches.")
-
-    with st.expander("Browse the movie list"):
-        _ = st.caption(f"{len(movies):,} titles, sorted alphabetically.")
-        browse_movies = tuple(sorted(movies, key=lambda item: item.title.casefold()))
-        selected_browse_movie = st.selectbox(
-            "Choose from the alphabetical list",
-            options=browse_movies,
-            format_func=_movie_label,
-            key="browse_movie_choice",
-        )
-        if st.button("Add browsed movie to favorites"):
-            if _add_favorite(selected_browse_movie):
-                st.rerun()
-            else:
-                _ = st.info("That movie is already in your favorites.")
-        _ = st.dataframe(  # pyright: ignore[reportUnknownMemberType]
-            [
-                {
-                    "Title": movie.title,
-                    "Year": movie.year,
-                    "Director": movie.director,
-                }
-                for movie in browse_movies
-            ],
-            hide_index=True,
-            width="stretch",
-        )
 
     favorite_ids = st.multiselect(
         "Your favorites",

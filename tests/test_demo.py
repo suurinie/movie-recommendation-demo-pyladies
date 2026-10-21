@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from movie_demo.app import _comparison_rows
+from movie_demo.app import _comparison_rows, _merge_favorite_ids
 from movie_demo.demo import (
     MovieChoice,
     find_movies,
@@ -62,11 +62,18 @@ def test_find_movies_does_not_match_empty_search() -> None:
     assert find_movies(movies, "   ") == ((), 0)
 
 
+def test_merge_favorite_ids_adds_unique_movies_in_selection_order() -> None:
+    assert _merge_favorite_ids([5, 2], [2, 4, 5, 3, 4]) == [5, 2, 4, 3]
+
+
 def test_app_trains_before_search_recommendations() -> None:
     app_path = Path(__file__).parents[1] / "src" / "movie_demo" / "app.py"
     app = AppTest.from_file(str(app_path)).run()
     assert not app.exception
-    assert [box.label for box in app.selectbox] == ["Choose from the alphabetical list"]
+    assert not app.selectbox
+    assert all(
+        button.label != "Add selected movies to favorites" for button in app.button
+    )
     assert not app.subheader
 
     app.multiselect[0].set_value([10_000.0]).run()
@@ -83,19 +90,7 @@ def test_app_trains_before_search_recommendations() -> None:
     assert sum(row["Model"] == "Popularity baseline" for row in rows) == 1
     assert rows[-2]["Model"] == "λ = 10000 (selected)"
     assert "Recall@10" in rows[-1]
-    browse_selector = next(
-        box for box in app.selectbox if box.label == "Choose from the alphabetical list"
-    )
-    assert browse_selector.options
-    browse_selector.set_value(browse_selector.options[0]).run()
-    next(
-        button
-        for button in app.button
-        if button.label == "Add browsed movie to favorites"
-    ).click().run()
-    assert not app.exception
-    browsed_movie = app.session_state["browse_movie_choice"]
-    assert app.session_state["favorite_movie_ids"] == [browsed_movie.movie_id]
+    assert app.dataframe
 
     app.text_input[0].set_value("Totoro")
     next(button for button in app.button if button.label == "Search").click().run()
@@ -108,7 +103,7 @@ def test_app_trains_before_search_recommendations() -> None:
     next(
         button for button in app.button if button.label == "Add movie to favorites"
     ).click().run()
-    assert len(app.session_state["favorite_movie_ids"]) == 2
+    assert len(app.session_state["favorite_movie_ids"]) == 1
     assert any(item.value == "Recommended for you" for item in app.subheader)
 
 
