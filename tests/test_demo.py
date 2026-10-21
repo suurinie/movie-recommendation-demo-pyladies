@@ -4,7 +4,11 @@ import numpy as np
 import pytest
 from streamlit.testing.v1 import AppTest
 
-from movie_demo.app import _comparison_rows, _merge_favorite_ids
+from movie_demo.app import (
+    _alphabetical_movie_ids,
+    _comparison_rows,
+    _merge_favorite_ids,
+)
 from movie_demo.demo import (
     MovieChoice,
     find_movies,
@@ -64,6 +68,16 @@ def test_find_movies_does_not_match_empty_search() -> None:
 
 def test_merge_favorite_ids_adds_unique_movies_in_selection_order() -> None:
     assert _merge_favorite_ids([5, 2], [2, 4, 5, 3, 4]) == [5, 2, 4, 3]
+
+
+def test_alphabetical_movie_ids_sort_by_title_without_changing_ids() -> None:
+    movies = (
+        MovieChoice(0, "zebra", "", None),
+        MovieChoice(1, "Apple", "", None),
+        MovieChoice(2, "banana", "", None),
+    )
+
+    assert _alphabetical_movie_ids(movies) == (1, 2, 0)
 
 
 def test_app_trains_before_search_recommendations() -> None:

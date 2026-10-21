@@ -79,6 +79,15 @@ def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
     return label
 
 
+def _alphabetical_movie_ids(movies: tuple[MovieChoice, ...]) -> tuple[int, ...]:
+    return tuple(
+        sorted(
+            range(len(movies)),
+            key=lambda movie_id: movies[movie_id].title.casefold(),
+        )
+    )
+
+
 def _merge_favorite_ids(
     favorite_ids: Iterable[int], movie_ids: Iterable[int]
 ) -> list[int]:
@@ -337,7 +346,8 @@ def main() -> None:
     _show_implementation_details()
     _ = st.header("2. Try your favorites")
     _ = st.write(
-        "Search or browse for inspiration. Recommendations become available "
+        "Search for movies or select favorites from the checkbox menu below. "
+        + "Recommendations become available "
         + "after training and comparing models above."
     )
 
@@ -381,7 +391,7 @@ def main() -> None:
 
     favorite_ids = st.multiselect(
         "Your favorites",
-        options=range(len(movies)),
+        options=_alphabetical_movie_ids(movies),
         format_func=_movie_id_labeler(movies),
         key="favorite_movie_ids",
         help="You can remove a selection with the x on its chip.",
