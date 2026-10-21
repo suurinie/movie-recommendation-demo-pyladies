@@ -147,8 +147,18 @@ def _show_model_selection(
     _ = st.write(
         " ".join(
             (
-                "Choose candidate regularization values and run the analytical fit.",
-                "Fit on training viewers; validate λ; keep test viewers untouched.",
+                "We are solving a *regularized* recommendation problem.\n\n",
+                "    min_X||H - XH||_F² + λ||X||_F², subject to diag(X) = 0\n\n ",
+                "`H` is movies × viewers; `X` predicts movie scores from other movies.",
+                "The regularization parameter `λ` is a scalar that constitutes a ",
+                "*family of models*.",
+                "We select regularization values and fit with them.",
+                "The best model is selected based on validation performance.",
+                "We have split the viewers into training, validation, and test sets.\n",
+                " 1. Fit `X` for each `λ` on training viewers\n",
+                " 2. Choose best `λ` on validation viewers\n",
+                " 3. Keep test viewers untouched until the model is trained.\n\n",
+                "This is the way to measure real-world recommendation performance.",
             )
         )
     )
@@ -280,8 +290,7 @@ web interface is only the front end:
   **Ruff** checks Python style.
 
 The fit is analytical, not an epoch-based optimizer: each λ produces one
-regularized solve. The comparison teaches model selection without making SGD
-the focus.
+regularized solve.
 """
         )
         with st.expander("How do we split viewers?"):
