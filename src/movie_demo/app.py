@@ -25,7 +25,7 @@ from movie_demo.model_selection import (
 from movie_demo.splitting import DEFAULT_SPLIT_SEED, split_viewers
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = PROJECT_ROOT / "data" / "synthetic" / "seed-42-50000"
+DATA_DIR = PROJECT_ROOT / "data" / "synthetic" / "seed-42-50000-v2"
 MATRIX_PATH = DATA_DIR / "interactions.npz"
 MOVIES_PATH = DATA_DIR / "movies.csv"
 
@@ -315,8 +315,11 @@ def main() -> None:
     st.set_page_config(page_title="Movie favorites", page_icon="🎬")
     _ = st.title("Movie recommendations")
     _ = st.write("Search for favorites or select them from the checkbox menu.")
+    _ = st.caption(
+        "Experiment dataset: sampler v2 — raw vote counts drive 10% exploration."
+    )
     if not MATRIX_PATH.is_file() or not MOVIES_PATH.is_file():
-        _ = st.error("Demo data missing. Run with data/synthetic/seed-42-50000 files.")
+        _ = st.error(f"Demo data missing from {DATA_DIR}.")
         st.stop()
 
     try:

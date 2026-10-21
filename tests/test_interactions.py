@@ -9,10 +9,12 @@ from movie_demo.catalog import Catalog, load_catalog
 from movie_demo.interactions import (
     ACTOR_WEIGHT,
     DEFAULT_BATCH_SIZE,
+    DEFAULT_SAMPLING_VERSION,
     DIRECTOR_WEIGHT,
     GENRE_WEIGHT,
     POPULARITY_EXPLORATION_RATE,
     InteractionDataset,
+    _popularity_distribution,
     generate_interactions,
 )
 from movie_demo.profiles import DEFAULT_SEED, DEFAULT_VIEWERS
@@ -47,8 +49,28 @@ def test_working_defaults_and_sampling_weights() -> None:
     assert DEFAULT_VIEWERS == 500
     assert DEFAULT_SEED == 42
     assert DEFAULT_BATCH_SIZE == 128
+    assert DEFAULT_SAMPLING_VERSION == "v1"
     assert (GENRE_WEIGHT, DIRECTOR_WEIGHT, ACTOR_WEIGHT) == (3.0, 2.0, 1.5)
     assert POPULARITY_EXPLORATION_RATE == 0.1
+
+
+def test_sampling_versions_use_expected_vote_transforms(
+    write_catalog: CatalogWriter, movie_row: dict[str, str]
+) -> None:
+    rows = [
+        dict(movie_row, Series_Title=f"Movie {votes}", No_of_Votes=str(votes))
+        for votes in (0, 1_000, 100_000)
+    ]
+    catalog = load_catalog(write_catalog(rows))
+
+    v1 = _popularity_distribution(catalog, "v1")
+    v2 = _popularity_distribution(catalog, "v2")
+
+    np.testing.assert_allclose(
+        v1, np.log1p([0, 1_000, 100_000]) / np.log1p([0, 1_000, 100_000]).sum()
+    )
+    np.testing.assert_allclose(v2, np.array([0, 1_000, 100_000]) / 101_000)
+    assert v2[2] / v2[1] == 100
 
 
 def test_matrix_shape_binary_counts_and_csc(
@@ -122,6 +144,15 @@ def test_missing_votes_are_supported_with_uniform_exploration(
     assert dataset.matrix.nnz == sum(
         profile.target_interactions for profile in dataset.profiles
     )
+
+
+def test_unknown_sampling_version_is_rejected(
+    write_catalog: CatalogWriter, movie_row: dict[str, str]
+) -> None:
+    catalog = _interaction_catalog(write_catalog, movie_row)
+
+    with pytest.raises(ValueError, match="Unknown sampling version"):
+        generate_interactions(catalog, num_viewers=2, sampling_version="v3")
 
 
 def test_activity_larger_than_catalog_is_rejected(

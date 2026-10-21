@@ -1,5 +1,6 @@
 from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 from scipy.sparse import csc_array
@@ -18,6 +19,8 @@ DIRECTOR_WEIGHT = 2.0
 ACTOR_WEIGHT = 1.5
 POPULARITY_EXPLORATION_RATE = 0.1
 DEFAULT_BATCH_SIZE = 128
+SamplingVersion = Literal["v1", "v2"]
+DEFAULT_SAMPLING_VERSION: SamplingVersion = "v1"
 
 
 @dataclass(frozen=True)
@@ -43,9 +46,16 @@ def _softmax(scores: np.ndarray) -> np.ndarray:
     return probabilities / probabilities.sum()
 
 
-def _popularity_distribution(catalog: Catalog) -> np.ndarray:
+def _popularity_distribution(
+    catalog: Catalog, sampling_version: SamplingVersion
+) -> np.ndarray:
     votes = np.array([movie.votes or 0 for movie in catalog.movies], dtype=np.float64)
-    popularity = np.log1p(votes)
+    if sampling_version == "v1":
+        popularity = np.log1p(votes)
+    elif sampling_version == "v2":
+        popularity = votes
+    else:
+        raise ValueError(f"Unknown sampling version: {sampling_version!r}.")
     total = popularity.sum()
     if total == 0:
         return np.full(len(votes), 1.0 / len(votes))
@@ -80,6 +90,7 @@ def generate_interactions(
     seed: int = DEFAULT_SEED,
     *,
     batch_size: int = DEFAULT_BATCH_SIZE,
+    sampling_version: SamplingVersion = DEFAULT_SAMPLING_VERSION,
 ) -> InteractionDataset:
     """Sample binary likes into a sparse movies-by-viewers matrix."""
     if type(num_viewers) is not int:
@@ -94,6 +105,8 @@ def generate_interactions(
         raise TypeError("batch_size must be an integer.")
     if batch_size < 1:
         raise ValueError("batch_size must be at least 1.")
+    if sampling_version not in ("v1", "v2"):
+        raise ValueError(f"Unknown sampling version: {sampling_version!r}.")
     num_movies = len(catalog.movies)
     if num_movies == 0:
         raise ValueError("Cannot generate interactions for an empty catalog.")
@@ -107,7 +120,7 @@ def generate_interactions(
     actor_indices = {
         name: index for index, name in enumerate(catalog.actor_features.vocabulary)
     }
-    popularity = _popularity_distribution(catalog)
+    popularity = _popularity_distribution(catalog, sampling_version)
     mixture = 1.0 - POPULARITY_EXPLORATION_RATE
     row_chunks: list[np.ndarray] = []
     column_chunks: list[np.ndarray] = []

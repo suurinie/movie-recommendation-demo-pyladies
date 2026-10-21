@@ -116,6 +116,7 @@ def test_generate_command_saves_matrix_and_compact_index(
     summary = json.loads(capsys.readouterr().out)
     matrix = load_npz(output / "interactions.npz")
     assert summary["shape"] == [40, 5]
+    assert summary["sampling_version"] == "v1"
     assert summary["likes"] == matrix.nnz
     assert matrix.shape == (40, 5)
     with (output / "movies.csv").open(encoding="utf-8", newline="") as stream:
@@ -157,6 +158,38 @@ def test_generate_command_preserves_existing_output(
     assert exc_info.value.code == 2
     assert marker.read_text() == "keep"
     assert "already exists" in capsys.readouterr().err
+
+
+def test_generate_command_accepts_sampling_v2(
+    monkeypatch,
+    capsys,
+    tmp_path,
+    write_catalog,
+    movie_row,
+):
+    catalog_path = _write_large_catalog(write_catalog, movie_row)
+    output = tmp_path / "generated-v2"
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "movie-demo",
+            "generate",
+            "--catalog",
+            str(catalog_path),
+            "--viewers",
+            "5",
+            "--sampling-version",
+            "v2",
+            "--output",
+            str(output),
+        ],
+    )
+
+    main()
+
+    summary = json.loads(capsys.readouterr().out)
+    assert summary["sampling_version"] == "v2"
 
 
 def test_select_lambda_command_reports_validation_results(

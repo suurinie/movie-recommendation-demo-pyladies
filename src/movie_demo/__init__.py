@@ -7,7 +7,10 @@ from scipy.sparse import load_npz
 
 from movie_demo.catalog import CatalogError, load_catalog
 from movie_demo.dataset_io import save_generated_dataset
-from movie_demo.interactions import generate_interactions
+from movie_demo.interactions import (
+    DEFAULT_SAMPLING_VERSION,
+    generate_interactions,
+)
 from movie_demo.model_selection import (
     DEFAULT_CUTOFF,
     DEFAULT_EVALUATION_SEED,
@@ -41,6 +44,12 @@ def main() -> None:
     )
     generate_parser.add_argument(
         "--batch-size", type=int, default=128, help="Viewers processed per batch"
+    )
+    generate_parser.add_argument(
+        "--sampling-version",
+        choices=("v1", "v2"),
+        default=DEFAULT_SAMPLING_VERSION,
+        help=("v1 uses log1p(votes) for exploration; v2 uses raw vote counts"),
     )
     generate_parser.add_argument(
         "--output",
@@ -136,6 +145,7 @@ def main() -> None:
             num_viewers=args.viewers,
             seed=args.seed,
             batch_size=args.batch_size,
+            sampling_version=args.sampling_version,
         )
         matrix_path, movies_path = save_generated_dataset(catalog, dataset, args.output)
     except (OSError, ValueError, CatalogError) as exc:
@@ -147,6 +157,7 @@ def main() -> None:
             {
                 "movies": len(catalog.movies),
                 "viewers": len(dataset.profiles),
+                "sampling_version": args.sampling_version,
                 "shape": list(dataset.matrix.shape),
                 "likes": dataset.matrix.nnz,
                 "density": dataset.matrix.nnz

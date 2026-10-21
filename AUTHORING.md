@@ -94,8 +94,9 @@ The working default is 500 viewers; each profile contributes its target number
 of unique binary likes. `dataset.matrix` is a SciPy CSC array with shape
 `(movies, viewers)`. It contains only observed positive likes; missing entries
 are unknown. Sampling combines a stable softmax of genre/director/actor affinity
-(weights 3.0, 2.0, and 1.5) with 10% exploration weighted by `log1p(votes)`.
-If no vote counts are available, exploration is uniform. Sampling is without
+(weights 3.0, 2.0, and 1.5) with a 10% exploration component. Sampler `v1`
+weights exploration by `log1p(votes)`, while `v2` uses raw vote counts. If no
+vote counts are available, exploration is uniform. Sampling is without
 replacement, and each viewer's randomness depends only on the seed and viewer
 ID, so changing `batch_size` does not change the matrix.
 
@@ -113,8 +114,23 @@ uv run movie-demo generate \
   --catalog imdb_top_1000.csv \
   --viewers 50000 \
   --seed 42 \
+  --sampling-version v1 \
   --output data/synthetic/seed-42-50000
 ```
+
+To generate the raw-vote experiment without overwriting the existing dataset:
+
+```bash
+uv run movie-demo generate \
+  --catalog imdb_top_1000.csv \
+  --viewers 50000 \
+  --seed 42 \
+  --sampling-version v2 \
+  --output data/synthetic/seed-42-50000-v2
+```
+
+The command summary reports the sampling version used. `v1` remains the default
+so existing generation commands continue to reproduce the original dataset.
 
 The output directory contains `interactions.npz` and `movies.csv`. The matrix
 has shape `(movies, viewers)`; row `i` refers to `movie_id=i` in the CSV.

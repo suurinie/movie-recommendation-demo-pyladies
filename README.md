@@ -17,7 +17,9 @@ uv run streamlit run src/movie_demo/app.py
 ```
 
 Open the local URL printed in the terminal. The demo uses the included
-synthetic dataset; you do not need to download a movie catalog or generate data.
+sampler v2 synthetic dataset; you do not need to download a movie catalog or
+generate data. This experiment uses raw catalog vote counts for 10% of the
+sampling probability, instead of the log-compressed counts used by v1.
 
 ## Try the demo
 

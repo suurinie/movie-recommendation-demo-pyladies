@@ -1,0 +1,1001 @@
+movie_id,title,director,year
+0,The Shawshank Redemption,Frank Darabont,1994
+1,The Godfather,Francis Ford Coppola,1972
+2,The Dark Knight,Christopher Nolan,2008
+3,The Godfather: Part II,Francis Ford Coppola,1974
+4,12 Angry Men,Sidney Lumet,1957
+5,The Lord of the Rings: The Return of the King,Peter Jackson,2003
+6,Pulp Fiction,Quentin Tarantino,1994
+7,Schindler's List,Steven Spielberg,1993
+8,Inception,Christopher Nolan,2010
+9,Fight Club,David Fincher,1999
+10,The Lord of the Rings: The Fellowship of the Ring,Peter Jackson,2001
+11,Forrest Gump,Robert Zemeckis,1994
+12,"Il buono, il brutto, il cattivo",Sergio Leone,1966
+13,The Lord of the Rings: The Two Towers,Peter Jackson,2002
+14,The Matrix,Lana Wachowski,1999
+15,Goodfellas,Martin Scorsese,1990
+16,Star Wars: Episode V - The Empire Strikes Back,Irvin Kershner,1980
+17,One Flew Over the Cuckoo's Nest,Milos Forman,1975
+18,Hamilton,Thomas Kail,2020
+19,Gisaengchung,Bong Joon Ho,2019
+20,Soorarai Pottru,Sudha Kongara,2020
+21,Interstellar,Christopher Nolan,2014
+22,Cidade de Deus,Fernando Meirelles,2002
+23,Sen to Chihiro no kamikakushi,Hayao Miyazaki,2001
+24,Saving Private Ryan,Steven Spielberg,1998
+25,The Green Mile,Frank Darabont,1999
+26,La vita è bella,Roberto Benigni,1997
+27,Se7en,David Fincher,1995
+28,The Silence of the Lambs,Jonathan Demme,1991
+29,Star Wars,George Lucas,1977
+30,Seppuku,Masaki Kobayashi,1962
+31,Shichinin no samurai,Akira Kurosawa,1954
+32,It's a Wonderful Life,Frank Capra,1946
+33,Joker,Todd Phillips,2019
+34,Whiplash,Damien Chazelle,2014
+35,The Intouchables,Olivier Nakache,2011
+36,The Prestige,Christopher Nolan,2006
+37,The Departed,Martin Scorsese,2006
+38,The Pianist,Roman Polanski,2002
+39,Gladiator,Ridley Scott,2000
+40,American History X,Tony Kaye,1998
+41,The Usual Suspects,Bryan Singer,1995
+42,Léon,Luc Besson,1994
+43,The Lion King,Roger Allers,1994
+44,Terminator 2: Judgment Day,James Cameron,1991
+45,Nuovo Cinema Paradiso,Giuseppe Tornatore,1988
+46,Hotaru no haka,Isao Takahata,1988
+47,Back to the Future,Robert Zemeckis,1985
+48,Once Upon a Time in the West,Sergio Leone,1968
+49,Psycho,Alfred Hitchcock,1960
+50,Casablanca,Michael Curtiz,1942
+51,Modern Times,Charles Chaplin,1936
+52,City Lights,Charles Chaplin,1931
+53,Capharnaüm,Nadine Labaki,2018
+54,Ayla: The Daughter of War,Can Ulkay,2017
+55,Vikram Vedha,Gayatri,2017
+56,Kimi no na wa.,Makoto Shinkai,2016
+57,Dangal,Nitesh Tiwari,2016
+58,Spider-Man: Into the Spider-Verse,Bob Persichetti,2018
+59,Avengers: Endgame,Anthony Russo,2019
+60,Avengers: Infinity War,Anthony Russo,2018
+61,Coco,Lee Unkrich,2017
+62,Django Unchained,Quentin Tarantino,2012
+63,The Dark Knight Rises,Christopher Nolan,2012
+64,3 Idiots,Rajkumar Hirani,2009
+65,Taare Zameen Par,Aamir Khan,2007
+66,WALL·E,Andrew Stanton,2008
+67,The Lives of Others,Florian Henckel von Donnersmarck,2006
+68,Oldeuboi,Chan-wook Park,2003
+69,Memento,Christopher Nolan,2000
+70,Mononoke-hime,Hayao Miyazaki,1997
+71,Once Upon a Time in America,Sergio Leone,1984
+72,Raiders of the Lost Ark,Steven Spielberg,1981
+73,The Shining,Stanley Kubrick,1980
+74,Apocalypse Now,Francis Ford Coppola,1979
+75,Alien,Ridley Scott,1979
+76,Anand,Hrishikesh Mukherjee,1971
+77,Tengoku to jigoku,Akira Kurosawa,1963
+78,Dr. Strangelove or: How I Learned to Stop Worrying and Love the Bomb,Stanley Kubrick,1964
+79,Witness for the Prosecution,Billy Wilder,1957
+80,Paths of Glory,Stanley Kubrick,1957
+81,Rear Window,Alfred Hitchcock,1954
+82,Sunset Blvd.,Billy Wilder,1950
+83,The Great Dictator,Charles Chaplin,1940
+84,1917,Sam Mendes,2019
+85,Tumbbad,Rahi Anil Barve,2018
+86,Andhadhun,Sriram Raghavan,2018
+87,Drishyam,Jeethu Joseph,2013
+88,Jagten,Thomas Vinterberg,2012
+89,Jodaeiye Nader az Simin,Asghar Farhadi,2011
+90,Incendies,Denis Villeneuve,2010
+91,Miracle in cell NO.7,Mehmet Ada Öztekin,2019
+92,Babam ve Oglum,Çagan Irmak,2005
+93,Inglourious Basterds,Quentin Tarantino,2009
+94,Eternal Sunshine of the Spotless Mind,Michel Gondry,2004
+95,Amélie,Jean-Pierre Jeunet,2001
+96,Snatch,Guy Ritchie,2000
+97,Requiem for a Dream,Darren Aronofsky,2000
+98,American Beauty,Sam Mendes,1999
+99,Good Will Hunting,Gus Van Sant,1997
+100,Bacheha-Ye aseman,Majid Majidi,1997
+101,Toy Story,John Lasseter,1995
+102,Braveheart,Mel Gibson,1995
+103,Reservoir Dogs,Quentin Tarantino,1992
+104,Full Metal Jacket,Stanley Kubrick,1987
+105,Idi i smotri,Elem Klimov,1985
+106,Aliens,James Cameron,1986
+107,Amadeus,Milos Forman,1984
+108,Scarface,Brian De Palma,1983
+109,Star Wars: Episode VI - Return of the Jedi,Richard Marquand,1983
+110,Das Boot,Wolfgang Petersen,1981
+111,Taxi Driver,Martin Scorsese,1976
+112,The Sting,George Roy Hill,1973
+113,A Clockwork Orange,Stanley Kubrick,1971
+114,2001: A Space Odyssey,Stanley Kubrick,1968
+115,Per qualche dollaro in più,Sergio Leone,1965
+116,Lawrence of Arabia,David Lean,1962
+117,The Apartment,Billy Wilder,1960
+118,North by Northwest,Alfred Hitchcock,1959
+119,Vertigo,Alfred Hitchcock,1958
+120,Singin' in the Rain,Stanley Donen,1952
+121,Ikiru,Akira Kurosawa,1952
+122,Ladri di biciclette,Vittorio De Sica,1948
+123,Double Indemnity,Billy Wilder,1944
+124,Citizen Kane,Orson Welles,1941
+125,M - Eine Stadt sucht einen Mörder,Fritz Lang,1931
+126,Metropolis,Fritz Lang,1927
+127,The Kid,Charles Chaplin,1921
+128,Chhichhore,Nitesh Tiwari,2019
+129,Uri: The Surgical Strike,Aditya Dhar,2018
+130,K.G.F: Chapter 1,Prashanth Neel,2018
+131,Green Book,Peter Farrelly,2018
+132,"Three Billboards Outside Ebbing, Missouri",Martin McDonagh,2017
+133,Talvar,Meghna Gulzar,2015
+134,Baahubali 2: The Conclusion,S.S. Rajamouli,2017
+135,Klaus,Sergio Pablos,2019
+136,Drishyam,Nishikant Kamat,2015
+137,Queen,Vikas Bahl,2013
+138,Mandariinid,Zaza Urushadze,2013
+139,Bhaag Milkha Bhaag,Rakeysh Omprakash Mehra,2013
+140,Gangs of Wasseypur,Anurag Kashyap,2012
+141,Udaan,Vikramaditya Motwane,2010
+142,Paan Singh Tomar,Tigmanshu Dhulia,2012
+143,El secreto de sus ojos,Juan José Campanella,2009
+144,Warrior,Gavin O'Connor,2011
+145,Shutter Island,Martin Scorsese,2010
+146,Up,Pete Docter,2009
+147,The Wolf of Wall Street,Martin Scorsese,2013
+148,Chak De! India,Shimit Amin,2007
+149,There Will Be Blood,Paul Thomas Anderson,2007
+150,Pan's Labyrinth,Guillermo del Toro,2006
+151,Toy Story 3,Lee Unkrich,2010
+152,V for Vendetta,James McTeigue,2005
+153,Rang De Basanti,Rakeysh Omprakash Mehra,2006
+154,Black,Sanjay Leela Bhansali,2005
+155,Batman Begins,Christopher Nolan,2005
+156,"Swades: We, the People",Ashutosh Gowariker,2004
+157,Der Untergang,Oliver Hirschbiegel,2004
+158,Hauru no ugoku shiro,Hayao Miyazaki,2004
+159,A Beautiful Mind,Ron Howard,2001
+160,Hera Pheri,Priyadarshan,2000
+161,"Lock, Stock and Two Smoking Barrels",Guy Ritchie,1998
+162,L.A. Confidential,Curtis Hanson,1997
+163,Eskiya,Yavuz Turgul,1996
+164,Heat,Michael Mann,1995
+165,Casino,Martin Scorsese,1995
+166,Andaz Apna Apna,Rajkumar Santoshi,1994
+167,Unforgiven,Clint Eastwood,1992
+168,Indiana Jones and the Last Crusade,Steven Spielberg,1989
+169,Dom za vesanje,Emir Kusturica,1988
+170,Tonari no Totoro,Hayao Miyazaki,1988
+171,Die Hard,John McTiernan,1988
+172,Ran,Akira Kurosawa,1985
+173,Raging Bull,Martin Scorsese,1980
+174,Stalker,Andrei Tarkovsky,1979
+175,Höstsonaten,Ingmar Bergman,1978
+176,The Message,Moustapha Akkad,1976
+177,Sholay,Ramesh Sippy,1975
+178,Monty Python and the Holy Grail,Terry Gilliam,1975
+179,The Great Escape,John Sturges,1963
+180,To Kill a Mockingbird,Robert Mulligan,1962
+181,Yôjinbô,Akira Kurosawa,1961
+182,Judgment at Nuremberg,Stanley Kramer,1961
+183,Some Like It Hot,Billy Wilder,1959
+184,Smultronstället,Ingmar Bergman,1957
+185,Det sjunde inseglet,Ingmar Bergman,1957
+186,Du rififi chez les hommes,Jules Dassin,1955
+187,Dial M for Murder,Alfred Hitchcock,1954
+188,Tôkyô monogatari,Yasujirô Ozu,1953
+189,Rashômon,Akira Kurosawa,1950
+190,All About Eve,Joseph L. Mankiewicz,1950
+191,The Treasure of the Sierra Madre,John Huston,1948
+192,To Be or Not to Be,Ernst Lubitsch,1942
+193,The Gold Rush,Charles Chaplin,1925
+194,Sherlock Jr.,Buster Keaton,1924
+195,Portrait de la jeune fille en feu,Céline Sciamma,2019
+196,Pink,Aniruddha Roy Chowdhury,2016
+197,Koe no katachi,Naoko Yamada,2016
+198,Contratiempo,Oriol Paulo,2016
+199,Ah-ga-ssi,Chan-wook Park,2016
+200,Mommy,Xavier Dolan,2014
+201,Haider,Vishal Bhardwaj,2014
+202,Logan,James Mangold,2017
+203,Room,Lenny Abrahamson,2015
+204,Relatos salvajes,Damián Szifron,2014
+205,Soul,Pete Docter,2020
+206,Kis Uykusu,Nuri Bilge Ceylan,2014
+207,PK,Rajkumar Hirani,2014
+208,OMG: Oh My God!,Umesh Shukla,2012
+209,The Grand Budapest Hotel,Wes Anderson,2014
+210,Gone Girl,David Fincher,2014
+211,Ôkami kodomo no Ame to Yuki,Mamoru Hosoda,2012
+212,Hacksaw Ridge,Mel Gibson,2016
+213,Inside Out,Pete Docter,2015
+214,Barfi!,Anurag Basu,2012
+215,12 Years a Slave,Steve McQueen,2013
+216,Rush,Ron Howard,2013
+217,Ford v Ferrari,James Mangold,2019
+218,Spotlight,Tom McCarthy,2015
+219,Song of the Sea,Tomm Moore,2014
+220,Kahaani,Sujoy Ghosh,2012
+221,Zindagi Na Milegi Dobara,Zoya Akhtar,2011
+222,Prisoners,Denis Villeneuve,2013
+223,Mad Max: Fury Road,George Miller,2015
+224,A Wednesday,Neeraj Pandey,2008
+225,Gran Torino,Clint Eastwood,2008
+226,Harry Potter and the Deathly Hallows: Part 2,David Yates,2011
+227,Okuribito,Yôjirô Takita,2008
+228,Hachi: A Dog's Tale,Lasse Hallström,2009
+229,Mary and Max,Adam Elliot,2009
+230,How to Train Your Dragon,Dean DeBlois,2010
+231,Into the Wild,Sean Penn,2007
+232,No Country for Old Men,Ethan Coen,2007
+233,Lage Raho Munna Bhai,Rajkumar Hirani,2006
+234,Million Dollar Baby,Clint Eastwood,2004
+235,Hotel Rwanda,Terry George,2004
+236,Taegukgi hwinalrimyeo,Je-kyu Kang,2004
+237,Before Sunset,Richard Linklater,2004
+238,Munna Bhai M.B.B.S.,Rajkumar Hirani,2003
+239,Salinui chueok,Bong Joon Ho,2003
+240,Dil Chahta Hai,Farhan Akhtar,2001
+241,Kill Bill: Vol. 1,Quentin Tarantino,2003
+242,Finding Nemo,Andrew Stanton,2003
+243,Catch Me If You Can,Steven Spielberg,2002
+244,Amores perros,Alejandro G. Iñárritu,2000
+245,"Monsters, Inc.",Pete Docter,2001
+246,"Shin seiki Evangelion Gekijô-ban: Air/Magokoro wo, kimi ni",Hideaki Anno,1997
+247,Lagaan: Once Upon a Time in India,Ashutosh Gowariker,2001
+248,The Sixth Sense,M. Night Shyamalan,1999
+249,La leggenda del pianista sull'oceano,Giuseppe Tornatore,1998
+250,The Truman Show,Peter Weir,1998
+251,"Crna macka, beli macor",Emir Kusturica,1998
+252,The Big Lebowski,Joel Coen,1998
+253,Fa yeung nin wah,Kar-Wai Wong,2000
+254,Trainspotting,Danny Boyle,1996
+255,Fargo,Joel Coen,1996
+256,Underground,Emir Kusturica,1995
+257,La haine,Mathieu Kassovitz,1995
+258,Dilwale Dulhania Le Jayenge,Aditya Chopra,1995
+259,Before Sunrise,Richard Linklater,1995
+260,Trois couleurs: Rouge,Krzysztof Kieslowski,1994
+261,Chung Hing sam lam,Kar-Wai Wong,1994
+262,Jurassic Park,Steven Spielberg,1993
+263,In the Name of the Father,Jim Sheridan,1993
+264,Ba wang bie ji,Kaige Chen,1993
+265,Dà hóng denglong gaogao guà,Yimou Zhang,1991
+266,Dead Poets Society,Peter Weir,1989
+267,Stand by Me,Rob Reiner,1986
+268,Platoon,Oliver Stone,1986
+269,"Paris, Texas",Wim Wenders,1984
+270,Kaze no tani no Naushika,Hayao Miyazaki,1984
+271,The Thing,John Carpenter,1982
+272,Pink Floyd: The Wall,Alan Parker,1982
+273,Fitzcarraldo,Werner Herzog,1982
+274,Fanny och Alexander,Ingmar Bergman,1982
+275,Blade Runner,Ridley Scott,1982
+276,The Elephant Man,David Lynch,1980
+277,Life of Brian,Terry Jones,1979
+278,The Deer Hunter,Michael Cimino,1978
+279,Rocky,John G. Avildsen,1976
+280,Network,Sidney Lumet,1976
+281,Barry Lyndon,Stanley Kubrick,1975
+282,Zerkalo,Andrei Tarkovsky,1975
+283,Chinatown,Roman Polanski,1974
+284,Paper Moon,Peter Bogdanovich,1973
+285,Viskningar och rop,Ingmar Bergman,1972
+286,Solaris,Andrei Tarkovsky,1972
+287,Le samouraï,Jean-Pierre Melville,1967
+288,Cool Hand Luke,Stuart Rosenberg,1967
+289,Persona,Ingmar Bergman,1966
+290,Andrei Rublev,Andrei Tarkovsky,1966
+291,La battaglia di Algeri,Gillo Pontecorvo,1966
+292,El ángel exterminador,Luis Buñuel,1962
+293,What Ever Happened to Baby Jane?,Robert Aldrich,1962
+294,Sanjuro,Akira Kurosawa,1962
+295,The Man Who Shot Liberty Valance,John Ford,1962
+296,Ivanovo detstvo,Andrei Tarkovsky,1962
+297,Jungfrukällan,Ingmar Bergman,1960
+298,Inherit the Wind,Stanley Kramer,1960
+299,Les quatre cents coups,François Truffaut,1959
+300,Ben-Hur,William Wyler,1959
+301,Kakushi-toride no san-akunin,Akira Kurosawa,1958
+302,Le notti di Cabiria,Federico Fellini,1957
+303,Kumonosu-jô,Akira Kurosawa,1957
+304,The Bridge on the River Kwai,David Lean,1957
+305,On the Waterfront,Elia Kazan,1954
+306,Le salaire de la peur,Henri-Georges Clouzot,1953
+307,Ace in the Hole,Billy Wilder,1951
+308,White Heat,Raoul Walsh,1949
+309,The Third Man,Carol Reed,1949
+310,The Red Shoes,Michael Powell,1948
+311,The Shop Around the Corner,Ernst Lubitsch,1940
+312,Rebecca,Alfred Hitchcock,1940
+313,Mr. Smith Goes to Washington,Frank Capra,1939
+314,Gone with the Wind,Victor Fleming,1939
+315,La Grande Illusion,Jean Renoir,1937
+316,It Happened One Night,Frank Capra,1934
+317,La passion de Jeanne d'Arc,Carl Theodor Dreyer,1928
+318,The Circus,Charles Chaplin,1928
+319,Sunrise: A Song of Two Humans,F.W. Murnau,1927
+320,The General,Clyde Bruckman,1926
+321,Das Cabinet des Dr. Caligari,Robert Wiene,1920
+322,Badhaai ho,Amit Ravindernath Sharma,2018
+323,Togo,Ericson Core,2019
+324,Airlift,Raja Menon,2016
+325,Bajrangi Bhaijaan,Kabir Khan,2015
+326,Baby,Neeraj Pandey,2015
+327,La La Land,Damien Chazelle,2016
+328,Lion,Garth Davis,2016
+329,The Martian,Ridley Scott,2015
+330,Zootopia,Byron Howard,2016
+331,Bãhubali: The Beginning,S.S. Rajamouli,2015
+332,Kaguyahime no monogatari,Isao Takahata,2013
+333,Wonder,Stephen Chbosky,2017
+334,Gully Boy,Zoya Akhtar,2019
+335,Special Chabbis,Neeraj Pandey,2013
+336,Short Term 12,Destin Daniel Cretton,2013
+337,Serbuan maut 2: Berandal,Gareth Evans,2014
+338,The Imitation Game,Morten Tyldum,2014
+339,Guardians of the Galaxy,James Gunn,2014
+340,Blade Runner 2049,Denis Villeneuve,2017
+341,Her,Spike Jonze,2013
+342,Bohemian Rhapsody,Bryan Singer,2018
+343,The Revenant,Alejandro G. Iñárritu,2015
+344,The Perks of Being a Wallflower,Stephen Chbosky,2012
+345,Tropa de Elite 2: O Inimigo Agora é Outro,José Padilha,2010
+346,The King's Speech,Tom Hooper,2010
+347,The Help,Tate Taylor,2011
+348,Deadpool,Tim Miller,2016
+349,Darbareye Elly,Asghar Farhadi,2009
+350,Dev.D,Anurag Kashyap,2009
+351,Yip Man,Wilson Yip,2008
+352,My Name Is Khan,Karan Johar,2010
+353,Nefes: Vatan Sagolsun,Levent Semerci,2009
+354,Slumdog Millionaire,Danny Boyle,2008
+355,Black Swan,Darren Aronofsky,2010
+356,Tropa de Elite,José Padilha,2007
+357,The Avengers,Joss Whedon,2012
+358,Persepolis,Vincent Paronnaud,2007
+359,Dallas Buyers Club,Jean-Marc Vallée,2013
+360,The Pursuit of Happyness,Gabriele Muccino,2006
+361,Blood Diamond,Edward Zwick,2006
+362,The Bourne Ultimatum,Paul Greengrass,2007
+363,Bin-jip,Ki-duk Kim,2004
+364,Sin City,Frank Miller,2005
+365,Le scaphandre et le papillon,Julian Schnabel,2007
+366,G.O.R.A.,Ömer Faruk Sorak,2004
+367,Ratatouille,Brad Bird,2007
+368,Casino Royale,Martin Campbell,2006
+369,Kill Bill: Vol. 2,Quentin Tarantino,2004
+370,Vozvrashchenie,Andrey Zvyagintsev,2003
+371,Bom Yeoareum Gaeul Gyeoul Geurigo Bom,Ki-duk Kim,2003
+372,Mar adentro,Alejandro Amenábar,2014
+373,Cinderella Man,Ron Howard,2005
+374,Kal Ho Naa Ho,Nikkhil Advani,2003
+375,Mou gaan dou,Andrew Lau,2002
+376,Pirates of the Caribbean: The Curse of the Black Pearl,Gore Verbinski,2003
+377,Big Fish,Tim Burton,2003
+378,The Incredibles,Brad Bird,2004
+379,Yeopgijeogin geunyeo,Jae-young Kwak,2001
+380,Dogville,Lars von Trier,2003
+381,Vizontele,Yilmaz Erdogan,2001
+382,Donnie Darko,Richard Kelly,2001
+383,Magnolia,Paul Thomas Anderson,1999
+384,Dancer in the Dark,Lars von Trier,2000
+385,The Straight Story,David Lynch,1999
+386,Pâfekuto burû,Satoshi Kon,1997
+387,Festen,Thomas Vinterberg,1998
+388,Central do Brasil,Walter Salles,1998
+389,The Iron Giant,Brad Bird,1999
+390,Knockin' on Heaven's Door,Thomas Jahn,1997
+391,Sling Blade,Billy Bob Thornton,1996
+392,Secrets & Lies,Mike Leigh,1996
+393,Twelve Monkeys,Terry Gilliam,1995
+394,Kôkaku Kidôtai,Mamoru Oshii,1995
+395,The Nightmare Before Christmas,Henry Selick,1993
+396,Groundhog Day,Harold Ramis,1993
+397,Bound by Honor,Taylor Hackford,1993
+398,Scent of a Woman,Martin Brest,1992
+399,Aladdin,Ron Clements,1992
+400,JFK,Oliver Stone,1991
+401,Beauty and the Beast,Gary Trousdale,1991
+402,Dances with Wolves,Kevin Costner,1990
+403,Do the Right Thing,Spike Lee,1989
+404,Rain Man,Barry Levinson,1988
+405,Akira,Katsuhiro Ôtomo,1988
+406,The Princess Bride,Rob Reiner,1987
+407,Der Himmel über Berlin,Wim Wenders,1987
+408,Au revoir les enfants,Louis Malle,1987
+409,Tenkû no shiro Rapyuta,Hayao Miyazaki,1986
+410,The Terminator,James Cameron,1984
+411,Gandhi,Richard Attenborough,1982
+412,Kagemusha,Akira Kurosawa,1980
+413,Being There,Hal Ashby,1979
+414,Annie Hall,Woody Allen,1977
+415,Jaws,Steven Spielberg,1975
+416,Dog Day Afternoon,Sidney Lumet,1975
+417,Young Frankenstein,Mel Brooks,1974
+418,Papillon,Franklin J. Schaffner,1973
+419,The Exorcist,William Friedkin,1973
+420,Sleuth,Joseph L. Mankiewicz,1972
+421,The Last Picture Show,Peter Bogdanovich,1971
+422,Fiddler on the Roof,Norman Jewison,1971
+423,Il conformista,Bernardo Bertolucci,1970
+424,Butch Cassidy and the Sundance Kid,George Roy Hill,1969
+425,Rosemary's Baby,Roman Polanski,1968
+426,Planet of the Apes,Franklin J. Schaffner,1968
+427,The Graduate,Mike Nichols,1967
+428,Who's Afraid of Virginia Woolf?,Mike Nichols,1966
+429,The Sound of Music,Robert Wise,1965
+430,Doctor Zhivago,David Lean,1965
+431,Per un pugno di dollari,Sergio Leone,1964
+432,8½,Federico Fellini,1963
+433,Vivre sa vie: Film en douze tableaux,Jean-Luc Godard,1962
+434,The Hustler,Robert Rossen,1961
+435,La dolce vita,Federico Fellini,1960
+436,Rio Bravo,Howard Hawks,1959
+437,Anatomy of a Murder,Otto Preminger,1959
+438,Touch of Evil,Orson Welles,1958
+439,Cat on a Hot Tin Roof,Richard Brooks,1958
+440,Sweet Smell of Success,Alexander Mackendrick,1957
+441,The Killing,Stanley Kubrick,1956
+442,The Night of the Hunter,Charles Laughton,1955
+443,La Strada,Federico Fellini,1954
+444,Les diaboliques,Henri-Georges Clouzot,1955
+445,Stalag 17,Billy Wilder,1953
+446,Roman Holiday,William Wyler,1953
+447,A Streetcar Named Desire,Elia Kazan,1951
+448,In a Lonely Place,Nicholas Ray,1950
+449,Kind Hearts and Coronets,Robert Hamer,1949
+450,Rope,Alfred Hitchcock,1948
+451,Out of the Past,Jacques Tourneur,1947
+452,Brief Encounter,David Lean,1945
+453,Laura,Otto Preminger,1944
+454,The Best Years of Our Lives,William Wyler,1946
+455,Arsenic and Old Lace,Frank Capra,1942
+456,The Maltese Falcon,John Huston,1941
+457,The Grapes of Wrath,John Ford,1940
+458,The Wizard of Oz,Victor Fleming,1939
+459,La règle du jeu,Jean Renoir,1939
+460,The Thin Man,W.S. Van Dyke,1934
+461,All Quiet on the Western Front,Lewis Milestone,1930
+462,Bronenosets Potemkin,Sergei M. Eisenstein,1925
+463,Knives Out,Rian Johnson,2019
+464,Dil Bechara,Mukesh Chhabra,2020
+465,Manbiki kazoku,Hirokazu Koreeda,2018
+466,Marriage Story,Noah Baumbach,2019
+467,Call Me by Your Name,Luca Guadagnino,2017
+468,"I, Daniel Blake",Ken Loach,2016
+469,Isle of Dogs,Wes Anderson,2018
+470,Hunt for the Wilderpeople,Taika Waititi,2016
+471,Captain Fantastic,Matt Ross,2016
+472,Sing Street,John Carney,2016
+473,Thor: Ragnarok,Taika Waititi,2017
+474,Nightcrawler,Dan Gilroy,2014
+475,Jojo Rabbit,Taika Waititi,2019
+476,Arrival,Denis Villeneuve,2016
+477,Star Wars: Episode VII - The Force Awakens,J.J. Abrams,2015
+478,Before Midnight,Richard Linklater,2013
+479,X-Men: Days of Future Past,Bryan Singer,2014
+480,Bir Zamanlar Anadolu'da,Nuri Bilge Ceylan,2011
+481,The Artist,Michel Hazanavicius,2011
+482,Edge of Tomorrow,Doug Liman,2014
+483,Amour,Michael Haneke,2012
+484,The Irishman,Martin Scorsese,2019
+485,Un prophète,Jacques Audiard,2009
+486,Moon,Duncan Jones,2009
+487,Låt den rätte komma in,Tomas Alfredson,2008
+488,District 9,Neill Blomkamp,2009
+489,The Wrestler,Darren Aronofsky,2008
+490,Jab We Met,Imtiaz Ali,2007
+491,Boyhood,Richard Linklater,2014
+492,"4 luni, 3 saptamâni si 2 zile",Cristian Mungiu,2007
+493,Star Trek,J.J. Abrams,2009
+494,In Bruges,Martin McDonagh,2008
+495,The Man from Earth,Richard Schenkman,2007
+496,Letters from Iwo Jima,Clint Eastwood,2006
+497,The Fall,Tarsem Singh,2006
+498,Life of Pi,Ang Lee,2012
+499,Fantastic Mr. Fox,Wes Anderson,2009
+500,C.R.A.Z.Y.,Jean-Marc Vallée,2005
+501,Les choristes,Christophe Barratier,2004
+502,Iron Man,Jon Favreau,2008
+503,Shaun of the Dead,Edgar Wright,2004
+504,Gegen die Wand,Fatih Akin,2004
+505,Mystic River,Clint Eastwood,2003
+506,Harry Potter and the Prisoner of Azkaban,Alfonso Cuarón,2004
+507,Ying xiong,Yimou Zhang,2002
+508,Hable con ella,Pedro Almodóvar,2002
+509,No Man's Land,Danis Tanovic,2001
+510,Cowboy Bebop: Tengoku no tobira,Shin'ichirô Watanabe,2001
+511,The Bourne Identity,Doug Liman,2002
+512,Nueve reinas,Fabián Bielinsky,2000
+513,Children of Men,Alfonso Cuarón,2006
+514,Almost Famous,Cameron Crowe,2000
+515,Mulholland Dr.,David Lynch,2001
+516,Toy Story 2,John Lasseter,1999
+517,Boogie Nights,Paul Thomas Anderson,1997
+518,Mimi wo sumaseba,Yoshifumi Kondô,1995
+519,Once Were Warriors,Lee Tamahori,1994
+520,True Romance,Tony Scott,1993
+521,Trois couleurs: Bleu,Krzysztof Kieslowski,1993
+522,Jûbê ninpûchô,Yoshiaki Kawajiri,1993
+523,Carlito's Way,Brian De Palma,1993
+524,Edward Scissorhands,Tim Burton,1990
+525,My Left Foot: The Story of Christy Brown,Jim Sheridan,1989
+526,Crimes and Misdemeanors,Woody Allen,1989
+527,The Untouchables,Brian De Palma,1987
+528,Hannah and Her Sisters,Woody Allen,1986
+529,Brazil,Terry Gilliam,1985
+530,This Is Spinal Tap,Rob Reiner,1984
+531,A Christmas Story,Bob Clark,1983
+532,The Blues Brothers,John Landis,1980
+533,Manhattan,Woody Allen,1979
+534,All That Jazz,Bob Fosse,1979
+535,Dawn of the Dead,George A. Romero,1978
+536,All the President's Men,Alan J. Pakula,1976
+537,La montaña sagrada,Alejandro Jodorowsky,1973
+538,Amarcord,Federico Fellini,1973
+539,Le charme discret de la bourgeoisie,Luis Buñuel,1972
+540,"Aguirre, der Zorn Gottes",Werner Herzog,1972
+541,Harold and Maude,Hal Ashby,1971
+542,Patton,Franklin J. Schaffner,1970
+543,The Wild Bunch,Sam Peckinpah,1969
+544,Night of the Living Dead,George A. Romero,1968
+545,The Lion in Winter,Anthony Harvey,1968
+546,In the Heat of the Night,Norman Jewison,1967
+547,Charade,Stanley Donen,1963
+548,The Manchurian Candidate,John Frankenheimer,1962
+549,Spartacus,Stanley Kubrick,1960
+550,L'avventura,Michelangelo Antonioni,1960
+551,Hiroshima mon amour,Alain Resnais,1959
+552,The Ten Commandments,Cecil B. DeMille,1956
+553,The Searchers,John Ford,1956
+554,East of Eden,Elia Kazan,1955
+555,High Noon,Fred Zinnemann,1952
+556,Strangers on a Train,Alfred Hitchcock,1951
+557,Harvey,Henry Koster,1950
+558,Miracle on 34th Street,George Seaton,1947
+559,Notorious,Alfred Hitchcock,1946
+560,The Big Sleep,Howard Hawks,1946
+561,The Lost Weekend,Billy Wilder,1945
+562,The Philadelphia Story,George Cukor,1940
+563,His Girl Friday,Howard Hawks,1940
+564,The Adventures of Robin Hood,Michael Curtiz,1938
+565,A Night at the Opera,Sam Wood,1935
+566,King Kong,Merian C. Cooper,1933
+567,Freaks,Tod Browning,1932
+568,Nosferatu,F.W. Murnau,1922
+569,The Gentlemen,Guy Ritchie,2019
+570,Raazi,Meghna Gulzar,2018
+571,Sound of Metal,Darius Marder,2019
+572,Forushande,Asghar Farhadi,2016
+573,Dunkirk,Christopher Nolan,2017
+574,Perfetti sconosciuti,Paolo Genovese,2016
+575,Hidden Figures,Theodore Melfi,2016
+576,Paddington 2,Paul King,2017
+577,Udta Punjab,Abhishek Chaubey,2016
+578,Kubo and the Two Strings,Travis Knight,2016
+579,M.S. Dhoni: The Untold Story,Neeraj Pandey,2016
+580,Manchester by the Sea,Kenneth Lonergan,2016
+581,Under sandet,Martin Zandvliet,2015
+582,Rogue One,Gareth Edwards,2016
+583,Captain America: Civil War,Anthony Russo,2016
+584,The Hateful Eight,Quentin Tarantino,2015
+585,Little Women,Greta Gerwig,2019
+586,Loving Vincent,Dorota Kobiela,2017
+587,Pride,Matthew Warchus,2014
+588,Le passé,Asghar Farhadi,2013
+589,La grande bellezza,Paolo Sorrentino,2013
+590,The Lunchbox,Ritesh Batra,2013
+591,Vicky Donor,Shoojit Sircar,2012
+592,Big Hero 6,Don Hall,2014
+593,About Time,Richard Curtis,2013
+594,English Vinglish,Gauri Shinde,2012
+595,Kaze tachinu,Hayao Miyazaki,2013
+596,Toy Story 4,Josh Cooley,2019
+597,La migliore offerta,Giuseppe Tornatore,2013
+598,Moonrise Kingdom,Wes Anderson,2012
+599,How to Train Your Dragon 2,Dean DeBlois,2014
+600,The Big Short,Adam McKay,2015
+601,Kokuhaku,Tetsuya Nakashima,2010
+602,Ang-ma-reul bo-at-da,Jee-woon Kim,2010
+603,The Girl with the Dragon Tattoo,David Fincher,2011
+604,Captain Phillips,Paul Greengrass,2013
+605,Ajeossi,Jeong-beom Lee,2010
+606,Straight Outta Compton,F. Gary Gray,2015
+607,Madeo,Bong Joon Ho,2009
+608,Chugyeokja,Hong-jin Na,2008
+609,The Hobbit: The Desolation of Smaug,Peter Jackson,2013
+610,Das weiße Band - Eine deutsche Kindergeschichte,Michael Haneke,2009
+611,Män som hatar kvinnor,Niels Arden Oplev,2009
+612,The Trial of the Chicago 7,Aaron Sorkin,2020
+613,Druk,Thomas Vinterberg,2020
+614,The Fighter,David O. Russell,2010
+615,Taken,Pierre Morel,2008
+616,The Boy in the Striped Pyjamas,Mark Herman,2008
+617,Once,John Carney,2007
+618,The Hobbit: An Unexpected Journey,Peter Jackson,2012
+619,Auf der anderen Seite,Fatih Akin,2007
+620,Atonement,Joe Wright,2007
+621,Drive,Nicolas Winding Refn,2011
+622,American Gangster,Ridley Scott,2007
+623,Avatar,James Cameron,2009
+624,Mr. Nobody,Jaco Van Dormael,2009
+625,Apocalypto,Mel Gibson,2006
+626,Little Miss Sunshine,Jonathan Dayton,2006
+627,Hot Fuzz,Edgar Wright,2007
+628,The Curious Case of Benjamin Button,David Fincher,2008
+629,Veer-Zaara,Yash Chopra,2004
+630,Adams æbler,Anders Thomas Jensen,2005
+631,Pride & Prejudice,Joe Wright,2005
+632,The World's Fastest Indian,Roger Donaldson,2005
+633,Tôkyô goddofâzâzu,Satoshi Kon,2003
+634,Serenity,Joss Whedon,2005
+635,Walk the Line,James Mangold,2005
+636,Ondskan,Mikael Håfström,2003
+637,The Notebook,Nick Cassavetes,2004
+638,Diarios de motocicleta,Walter Salles,2004
+639,Lilja 4-ever,Lukas Moodysson,2002
+640,Les triplettes de Belleville,Sylvain Chomet,2003
+641,Gongdong gyeongbi guyeok JSA,Chan-wook Park,2000
+642,The Count of Monte Cristo,Kevin Reynolds,2002
+643,Waking Life,Richard Linklater,2001
+644,Remember the Titans,Boaz Yakin,2000
+645,Wo hu cang long,Ang Lee,2000
+646,Todo sobre mi madre,Pedro Almodóvar,1999
+647,Cast Away,Robert Zemeckis,2000
+648,The Boondock Saints,Troy Duffy,1999
+649,The Insider,Michael Mann,1999
+650,October Sky,Joe Johnston,1999
+651,Shrek,Andrew Adamson,2001
+652,Titanic,James Cameron,1997
+653,Hana-bi,Takeshi Kitano,1997
+654,Gattaca,Andrew Niccol,1997
+655,The Game,David Fincher,1997
+656,Breaking the Waves,Lars von Trier,1996
+657,Ed Wood,Tim Burton,1994
+658,What's Eating Gilbert Grape,Lasse Hallström,1993
+659,Tombstone,George P. Cosmatos,1993
+660,The Sandlot,David Mickey Evans,1993
+661,The Remains of the Day,James Ivory,1993
+662,Naked,Mike Leigh,1993
+663,The Fugitive,Andrew Davis,1993
+664,A Bronx Tale,Robert De Niro,1993
+665,Batman: Mask of the Phantasm,Kevin Altieri,1993
+666,Lat sau san taam,John Woo,1992
+667,Night on Earth,Jim Jarmusch,1991
+668,La double vie de Véronique,Krzysztof Kieslowski,1991
+669,Boyz n the Hood,John Singleton,1991
+670,Misery,Rob Reiner,1990
+671,Awakenings,Penny Marshall,1990
+672,Majo no takkyûbin,Hayao Miyazaki,1989
+673,Glory,Edward Zwick,1989
+674,Dip huet seung hung,John Woo,1989
+675,Back to the Future Part II,Robert Zemeckis,1989
+676,Mississippi Burning,Alan Parker,1988
+677,Predator,John McTiernan,1987
+678,Evil Dead II,Sam Raimi,1987
+679,Ferris Bueller's Day Off,John Hughes,1986
+680,Down by Law,Jim Jarmusch,1986
+681,The Goonies,Richard Donner,1985
+682,The Color Purple,Steven Spielberg,1985
+683,The Breakfast Club,John Hughes,1985
+684,The Killing Fields,Roland Joffé,1984
+685,Ghostbusters,Ivan Reitman,1984
+686,The Right Stuff,Philip Kaufman,1983
+687,The King of Comedy,Martin Scorsese,1982
+688,E.T. the Extra-Terrestrial,Steven Spielberg,1982
+689,Kramer vs. Kramer,Robert Benton,1979
+690,Days of Heaven,Terrence Malick,1978
+691,The Outlaw Josey Wales,Clint Eastwood,1976
+692,The Man Who Would Be King,John Huston,1975
+693,The Conversation,Francis Ford Coppola,1974
+694,La planète sauvage,René Laloux,1973
+695,The Day of the Jackal,Fred Zinnemann,1973
+696,Badlands,Terrence Malick,1973
+697,Cabaret,Bob Fosse,1972
+698,Willy Wonka & the Chocolate Factory,Mel Stuart,1971
+699,Midnight Cowboy,John Schlesinger,1969
+700,Wait Until Dark,Terence Young,1967
+701,Guess Who's Coming to Dinner,Stanley Kramer,1967
+702,Bonnie and Clyde,Arthur Penn,1967
+703,My Fair Lady,George Cukor,1964
+704,Mary Poppins,Robert Stevenson,1964
+705,The Longest Day,Ken Annakin,1962
+706,Jules et Jim,François Truffaut,1962
+707,The Innocents,Jack Clayton,1961
+708,À bout de souffle,Jean-Luc Godard,1960
+709,Red River,Howard Hawks,1948
+710,Key Largo,John Huston,1948
+711,To Have and Have Not,Howard Hawks,1944
+712,Shadow of a Doubt,Alfred Hitchcock,1943
+713,Stagecoach,John Ford,1939
+714,The Lady Vanishes,Alfred Hitchcock,1938
+715,Bringing Up Baby,Howard Hawks,1938
+716,Bride of Frankenstein,James Whale,1935
+717,Duck Soup,Leo McCarey,1933
+718,Scarface: The Shame of the Nation,Howard Hawks,1932
+719,Frankenstein,James Whale,1931
+720,Roma,Alfonso Cuarón,2018
+721,God's Own Country,Francis Lee,2017
+722,Deadpool 2,David Leitch,2018
+723,Wind River,Taylor Sheridan,2017
+724,Get Out,Jordan Peele,2017
+725,Mission: Impossible - Fallout,Christopher McQuarrie,2018
+726,En man som heter Ove,Hannes Holm,2015
+727,What We Do in the Shadows,Jemaine Clement,2014
+728,Omoide no Mânî,James Simone,2014
+729,The Theory of Everything,James Marsh,2014
+730,Kingsman: The Secret Service,Matthew Vaughn,2014
+731,The Fault in Our Stars,Josh Boone,2014
+732,Me and Earl and the Dying Girl,Alfonso Gomez-Rejon,2015
+733,Birdman or (The Unexpected Virtue of Ignorance),Alejandro G. Iñárritu,2014
+734,La vie d'Adèle,Abdellatif Kechiche,2013
+735,Kai po che!,Abhishek Kapoor,2013
+736,The Broken Circle Breakdown,Felix van Groeningen,2012
+737,Captain America: The Winter Soldier,Anthony Russo,2014
+738,Rockstar,Imtiaz Ali,2011
+739,Nebraska,Alexander Payne,2013
+740,Wreck-It Ralph,Rich Moore,2012
+741,Le Petit Prince,Mark Osborne,2015
+742,Detachment,Tony Kaye,2011
+743,Midnight in Paris,Woody Allen,2011
+744,The Lego Movie,Christopher Miller,2014
+745,Gravity,Alfonso Cuarón,2013
+746,Star Trek Into Darkness,J.J. Abrams,2013
+747,Beasts of No Nation,Cary Joji Fukunaga,2015
+748,The Social Network,David Fincher,2010
+749,X: First Class,Matthew Vaughn,2011
+750,The Hangover,Todd Phillips,2009
+751,Skyfall,Sam Mendes,2012
+752,Silver Linings Playbook,David O. Russell,2012
+753,Argo,Ben Affleck,2012
+754,(500) Days of Summer,Marc Webb,2009
+755,Harry Potter and the Deathly Hallows: Part 1,David Yates,2010
+756,Gake no ue no Ponyo,Hayao Miyazaki,2008
+757,Frost/Nixon,Ron Howard,2008
+758,Papurika,Satoshi Kon,2006
+759,Changeling,Clint Eastwood,2008
+760,Flipped,Rob Reiner,2010
+761,Toki o kakeru shôjo,Mamoru Hosoda,2006
+762,Death Note: Desu nôto,Shûsuke Kaneko,2006
+763,This Is England,Shane Meadows,2006
+764,Ex Machina,Alex Garland,2014
+765,Efter brylluppet,Susanne Bier,2006
+766,The Last King of Scotland,Kevin Macdonald,2006
+767,Zodiac,David Fincher,2007
+768,Lucky Number Slevin,Paul McGuigan,2006
+769,Joyeux Noël,Christian Carion,2005
+770,Control,Anton Corbijn,2007
+771,Tangled,Nathan Greno,2010
+772,Zwartboek,Paul Verhoeven,2006
+773,Brokeback Mountain,Ang Lee,2005
+774,3:10 to Yuma,James Mangold,2007
+775,Crash,Paul Haggis,2004
+776,Kung fu,Stephen Chow,2004
+777,The Bourne Supremacy,Paul Greengrass,2004
+778,The Machinist,Brad Anderson,2004
+779,Ray,Taylor Hackford,2004
+780,Lost in Translation,Sofia Coppola,2003
+781,Harry Potter and the Goblet of Fire,Mike Newell,2005
+782,Man on Fire,Tony Scott,2004
+783,Coraline,Henry Selick,2009
+784,The Last Samurai,Edward Zwick,2003
+785,The Magdalene Sisters,Peter Mullan,2002
+786,Good Bye Lenin!,Wolfgang Becker,2003
+787,In America,Jim Sheridan,2002
+788,I Am Sam,Jessie Nelson,2001
+789,Adaptation.,Spike Jonze,2002
+790,Black Hawk Down,Ridley Scott,2001
+791,Road to Perdition,Sam Mendes,2002
+792,Das Experiment,Oliver Hirschbiegel,2001
+793,Billy Elliot,Stephen Daldry,2000
+794,Hedwig and the Angry Inch,John Cameron Mitchell,2001
+795,Ocean's Eleven,Steven Soderbergh,2001
+796,Vampire Hunter D: Bloodlust,Yoshiaki Kawajiri,2000
+797,"O Brother, Where Art Thou?",Joel Coen,2000
+798,Interstate 60: Episodes of the Road,Bob Gale,2002
+799,"South Park: Bigger, Longer & Uncut",Trey Parker,1999
+800,Office Space,Mike Judge,1999
+801,Happiness,Todd Solondz,1998
+802,Training Day,Antoine Fuqua,2001
+803,Rushmore,Wes Anderson,1998
+804,Abre los ojos,Alejandro Amenábar,1997
+805,Being John Malkovich,Spike Jonze,1999
+806,As Good as It Gets,James L. Brooks,1997
+807,The Fifth Element,Luc Besson,1997
+808,Le dîner de cons,Francis Veber,1998
+809,Donnie Brasco,Mike Newell,1997
+810,Shine,Scott Hicks,1996
+811,Primal Fear,Gregory Hoblit,1996
+812,Hamlet,Kenneth Branagh,1996
+813,A Little Princess,Alfonso Cuarón,1995
+814,Do lok tin si,Kar-Wai Wong,1995
+815,Il postino,Michael Radford,1994
+816,Clerks,Kevin Smith,1994
+817,Short Cuts,Robert Altman,1993
+818,Philadelphia,Jonathan Demme,1993
+819,The Muppet Christmas Carol,Brian Henson,1992
+820,Malcolm X,Spike Lee,1992
+821,The Last of the Mohicans,Michael Mann,1992
+822,Kurenai no buta,Hayao Miyazaki,1992
+823,Glengarry Glen Ross,James Foley,1992
+824,A Few Good Men,Rob Reiner,1992
+825,Fried Green Tomatoes,Jon Avnet,1991
+826,Barton Fink,Joel Coen,1991
+827,Miller's Crossing,Joel Coen,1990
+828,Who Framed Roger Rabbit,Robert Zemeckis,1988
+829,Spoorloos,George Sluizer,1988
+830,Withnail & I,Bruce Robinson,1987
+831,The Last Emperor,Bernardo Bertolucci,1987
+832,Empire of the Sun,Steven Spielberg,1987
+833,Der Name der Rose,Jean-Jacques Annaud,1986
+834,Blue Velvet,David Lynch,1986
+835,The Purple Rose of Cairo,Woody Allen,1985
+836,After Hours,Martin Scorsese,1985
+837,Zelig,Woody Allen,1983
+838,The Verdict,Sidney Lumet,1982
+839,Star Trek II: The Wrath of Khan,Nicholas Meyer,1982
+840,First Blood,Ted Kotcheff,1982
+841,Ordinary People,Robert Redford,1980
+842,Airplane!,Jim Abrahams,1980
+843,Rupan sansei: Kariosutoro no shiro,Hayao Miyazaki,1979
+844,Halloween,John Carpenter,1978
+845,Le locataire,Roman Polanski,1976
+846,Love and Death,Woody Allen,1975
+847,The Taking of Pelham One Two Three,Joseph Sargent,1974
+848,Blazing Saddles,Mel Brooks,1974
+849,Serpico,Sidney Lumet,1973
+850,Enter the Dragon,Robert Clouse,1973
+851,Deliverance,John Boorman,1972
+852,The French Connection,William Friedkin,1971
+853,Dirty Harry,Don Siegel,1971
+854,Where Eagles Dare,Brian G. Hutton,1968
+855,The Odd Couple,Gene Saks,1968
+856,The Dirty Dozen,Robert Aldrich,1967
+857,Belle de jour,Luis Buñuel,1967
+858,A Man for All Seasons,Fred Zinnemann,1966
+859,Repulsion,Roman Polanski,1965
+860,Zulu,Cy Endfield,1964
+861,Goldfinger,Guy Hamilton,1964
+862,The Birds,Alfred Hitchcock,1963
+863,Cape Fear,J. Lee Thompson,1962
+864,Peeping Tom,Michael Powell,1960
+865,The Magnificent Seven,John Sturges,1960
+866,Les yeux sans visage,Georges Franju,1960
+867,Invasion of the Body Snatchers,Don Siegel,1956
+868,Rebel Without a Cause,Nicholas Ray,1955
+869,The Ladykillers,Alexander Mackendrick,1955
+870,Sabrina,Billy Wilder,1954
+871,The Quiet Man,John Ford,1952
+872,The Day the Earth Stood Still,Robert Wise,1951
+873,The African Queen,John Huston,1951
+874,Gilda,Charles Vidor,1946
+875,Fantasia,James Algar,1940
+876,The Invisible Man,James Whale,1933
+877,Dark Waters,Todd Haynes,2019
+878,Searching,Aneesh Chaganty,2018
+879,Once Upon a Time... in Hollywood,Quentin Tarantino,2019
+880,Nelyubov,Andrey Zvyagintsev,2017
+881,The Florida Project,Sean Baker,2017
+882,Just Mercy,Destin Daniel Cretton,2019
+883,Gifted,Marc Webb,2017
+884,The Peanut Butter Falcon,Tyler Nilson,2019
+885,Victoria,Sebastian Schipper,2015
+886,Mustang,Deniz Gamze Ergüven,2015
+887,Guardians of the Galaxy Vol. 2,James Gunn,2017
+888,Baby Driver,Edgar Wright,2017
+889,Only the Brave,Joseph Kosinski,2017
+890,Bridge of Spies,Steven Spielberg,2015
+891,Incredibles 2,Brad Bird,2018
+892,Moana,Ron Clements,2016
+893,Sicario,Denis Villeneuve,2015
+894,Creed,Ryan Coogler,2015
+895,Leviafan,Andrey Zvyagintsev,2014
+896,Hell or High Water,David Mackenzie,2016
+897,Philomena,Stephen Frears,2013
+898,Dawn of the Planet of the Apes,Matt Reeves,2014
+899,El cuerpo,Oriol Paulo,2012
+900,Serbuan maut,Gareth Evans,2011
+901,End of Watch,David Ayer,2012
+902,Kari-gurashi no Arietti,Hiromasa Yonebayashi,2010
+903,A Star Is Born,Bradley Cooper,2018
+904,True Grit,Ethan Coen,2010
+905,Hævnen,Susanne Bier,2010
+906,Despicable Me,Pierre Coffin,2010
+907,50/50,Jonathan Levine,2011
+908,Kick-Ass,Matthew Vaughn,2010
+909,Celda 211,Daniel Monzón,2009
+910,Moneyball,Bennett Miller,2011
+911,La piel que habito,Pedro Almodóvar,2011
+912,Zombieland,Ruben Fleischer,2009
+913,Die Welle,Dennis Gansel,2008
+914,Sherlock Holmes,Guy Ritchie,2009
+915,The Blind Side,John Lee Hancock,2009
+916,The Visitor,Tom McCarthy,2007
+917,Seven Pounds,Gabriele Muccino,2008
+918,Eastern Promises,David Cronenberg,2007
+919,Stardust,Matthew Vaughn,2007
+920,The Secret of Kells,Tomm Moore,2009
+921,Inside Man,Spike Lee,2006
+922,Gone Baby Gone,Ben Affleck,2007
+923,La Vie En Rose,Olivier Dahan,2007
+924,Huo Yuan Jia,Ronny Yu,2006
+925,The Illusionist,Neil Burger,2006
+926,Dead Man's Shoes,Shane Meadows,2004
+927,Harry Potter and the Half-Blood Prince,David Yates,2009
+928,300,Zack Snyder,2006
+929,Match Point,Woody Allen,2005
+930,Watchmen,Zack Snyder,2009
+931,Lord of War,Andrew Niccol,2005
+932,Saw,James Wan,2004
+933,"Synecdoche, New York",Charlie Kaufman,2008
+934,Mysterious Skin,Gregg Araki,2004
+935,Jeux d'enfants,Yann Samuell,2003
+936,Un long dimanche de fiançailles,Jean-Pierre Jeunet,2004
+937,The Station Agent,Tom McCarthy,2003
+938,21 Grams,Alejandro G. Iñárritu,2003
+939,Boksuneun naui geot,Chan-wook Park,2002
+940,Finding Neverland,Marc Forster,2004
+941,25th Hour,Spike Lee,2002
+942,The Butterfly Effect,Eric Bress,2004
+943,28 Days Later...,Danny Boyle,2002
+944,Batoru rowaiaru,Kinji Fukasaku,2000
+945,The Royal Tenenbaums,Wes Anderson,2001
+946,Y tu mamá también,Alfonso Cuarón,2001
+947,Harry Potter and the Sorcerer's Stone,Chris Columbus,2001
+948,The Others,Alejandro Amenábar,2001
+949,Blow,Ted Demme,2001
+950,Enemy at the Gates,Jean-Jacques Annaud,2001
+951,Minority Report,Steven Spielberg,2002
+952,The Hurricane,Norman Jewison,1999
+953,American Psycho,Mary Harron,2000
+954,Lola rennt,Tom Tykwer,1998
+955,The Thin Red Line,Terrence Malick,1998
+956,Mulan,Tony Bancroft,1998
+957,Fear and Loathing in Las Vegas,Terry Gilliam,1998
+958,Funny Games,Michael Haneke,1997
+959,Dark City,Alex Proyas,1998
+960,Sleepers,Barry Levinson,1996
+961,Lost Highway,David Lynch,1997
+962,Sense and Sensibility,Ang Lee,1995
+963,Die Hard: With a Vengeance,John McTiernan,1995
+964,Dead Man,Jim Jarmusch,1995
+965,The Bridges of Madison County,Clint Eastwood,1995
+966,Apollo 13,Ron Howard,1995
+967,Trois couleurs: Blanc,Krzysztof Kieslowski,1994
+968,Falling Down,Joel Schumacher,1993
+969,Dazed and Confused,Richard Linklater,1993
+970,My Cousin Vinny,Jonathan Lynn,1992
+971,Omohide poro poro,Isao Takahata,1991
+972,Delicatessen,Marc Caro,1991
+973,Home Alone,Chris Columbus,1990
+974,The Godfather: Part III,Francis Ford Coppola,1990
+975,When Harry Met Sally...,Rob Reiner,1989
+976,The Little Mermaid,Ron Clements,1989
+977,The Naked Gun: From the Files of Police Squad!,David Zucker,1988
+978,"Planes, Trains & Automobiles",John Hughes,1987
+979,Lethal Weapon,Richard Donner,1987
+980,Blood Simple,Joel Coen,1984
+981,On Golden Pond,Mark Rydell,1981
+982,Mad Max 2,George Miller,1981
+983,The Warriors,Walter Hill,1979
+984,The Muppet Movie,James Frawley,1979
+985,Escape from Alcatraz,Don Siegel,1979
+986,Watership Down,Martin Rosen,1978
+987,Midnight Express,Alan Parker,1978
+988,Close Encounters of the Third Kind,Steven Spielberg,1977
+989,The Long Goodbye,Robert Altman,1973
+990,Giù la testa,Sergio Leone,1971
+991,Kelly's Heroes,Brian G. Hutton,1970
+992,The Jungle Book,Wolfgang Reitherman,1967
+993,Blowup,Michelangelo Antonioni,1966
+994,A Hard Day's Night,Richard Lester,1964
+995,Breakfast at Tiffany's,Blake Edwards,1961
+996,Giant,George Stevens,1956
+997,From Here to Eternity,Fred Zinnemann,1953
+998,Lifeboat,Alfred Hitchcock,1944
+999,The 39 Steps,Alfred Hitchcock,1935
