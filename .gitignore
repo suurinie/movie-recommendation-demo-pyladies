@@ -12,6 +12,7 @@ wheels/
 # Local source data and generated artifacts
 /imdb_top_1000.csv
 /models/
+/slides/build/
 
 # Tool caches
 .pytest_cache/
