@@ -10,6 +10,7 @@ from movie_demo.interactions import generate_interactions
 from movie_demo.model import (
     ItemLinearModel,
     fit_analytical,
+    fit_lasso,
     fit_sgd,
     reconstruction_loss,
 )
@@ -85,6 +86,24 @@ def test_prediction_rejects_wrong_shape() -> None:
 
     with pytest.raises(ValueError, match="vector of length 3"):
         model.predict(np.zeros((3, 1)))
+
+
+def test_lasso_produces_sparse_zero_diagonal_weights() -> None:
+    model = fit_lasso(_matrix(), regularization=20.0, max_iter=10_000)
+
+    assert model.method == "lasso"
+    assert np.count_nonzero(model.weights) < model.weights.size - len(model.weights)
+    np.testing.assert_array_equal(np.diag(model.weights), np.zeros(6))
+
+
+def test_lasso_objective_uses_absolute_weight_penalty() -> None:
+    interactions = _matrix()
+    model = fit_lasso(interactions, regularization=20.0, max_iter=10_000)
+    dense = interactions.toarray().astype(np.float64)
+    residual = dense - model.weights @ dense
+    expected = np.square(residual).sum() + 20.0 * np.abs(model.weights).sum()
+
+    assert reconstruction_loss(interactions, model) == pytest.approx(expected)
 
 
 def test_sgd_is_reproducible_and_zero_diagonal() -> None:

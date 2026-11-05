@@ -152,8 +152,10 @@ Why?
 
 \begin{frame}{Sparse solutions}
   \begin{itemize}
-    \item Sometimes we want $X$ to be sparse: only a few strong connections per movie.
-    \item Introduce an L1 regularization term to encourage sparsity.
+    \item L1 penalizes the sum of absolute connection strengths.
+    \item Some connections become exactly zero, leaving a sparser model.
+    \item Solve each movie's regression with scikit-learn's \texttt{Lasso}.
+    \item Coordinate descent is iterative; unlike L2, there is no closed-form solution.
   \end{itemize}
 
   \[
@@ -161,16 +163,26 @@ Why?
     \qquad \text{subject to} \quad X_{ii} = 0
   \]
 
-  \begin{itemize}
-    \item L1 norm: sum of absolute values of all entries in $X$.
-    \item Promotes many zero entries in $X$, leading to sparse connections.
-    \item More difficult to solve than the L2-regularized problem; requires iterative optimization methods.
-  \end{itemize}
+  \small The Streamlit demo currently uses L2; the L1 solver is available in the Python code.
 
 \end{frame}
 
-\begin{frame}{L2 vs L1 regularization}
-    Placeholder for image
+\begin{frame}[plain]
+  \centering
+  \includegraphics[
+    width=0.96\textwidth,
+    height=0.96\textheight,
+    keepaspectratio
+  ]{slides/assets/l1-l2-comparison.png}
+\end{frame}
+
+\begin{frame}[plain]
+  \centering
+  \includegraphics[
+    width=0.96\textwidth,
+    height=0.96\textheight,
+    keepaspectratio
+  ]{slides/assets/l1-l2-details.png}
 \end{frame}
 
 \begin{frame}{Summary}

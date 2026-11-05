@@ -277,6 +277,9 @@ uv run movie-demo generate \
 - Also provide one scikit-learn `SGDRegressor` per movie row, excluding that
   movie's own feature, with no intercept and L2 regularization matched by
   `alpha = lambda / number_of_training_viewers`.
+- Provide an L1 alternative with scikit-learn `Lasso` coordinate descent,
+  excluding each target movie from its own features and using
+  `alpha = lambda / (2 * number_of_training_viewers)`.
 - Cast interactions to floating point before computing the Gram matrix to
   prevent integer dot-product overflow.
 - Ensure both fit only the training partition and predict held-out viewers from

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.linalg import solve
 from scipy.sparse import csc_array, csr_matrix
-from sklearn.linear_model import SGDRegressor
+from sklearn.linear_model import Lasso, SGDRegressor
 
 
 @dataclass(frozen=True)
@@ -97,6 +97,55 @@ def fit_analytical(
 
 
 # ---------------------------------------------------------------------------
+# LASSO APPROACH
+# Coordinate descent fits one sparse regression per target movie.
+# ---------------------------------------------------------------------------
+def fit_lasso(
+    interactions: csc_array,
+    regularization: float = 100.0,
+    *,
+    max_iter: int = 1_000,
+    tolerance: float = 1e-4,
+) -> ItemLinearModel:
+    """Fit a zero-diagonal L1 model with sklearn's coordinate descent solver."""
+    _validate_training_data(interactions, regularization)
+    if type(max_iter) is not int:
+        raise TypeError("max_iter must be an integer.")
+    if max_iter < 1:
+        raise ValueError("max_iter must be at least 1.")
+    if type(tolerance) not in (int, float):
+        raise TypeError("tolerance must be a number.")
+    if not np.isfinite(tolerance) or tolerance <= 0:
+        raise ValueError("tolerance must be finite and positive.")
+
+    num_movies, num_viewers = interactions.shape
+    viewer_features = csr_matrix(interactions.T, dtype=np.float64)
+    targets = interactions.astype(np.float64)
+    weights = np.zeros((num_movies, num_movies), dtype=np.float64)
+    # Lasso minimizes mean_squared_error / 2 + alpha * ||weights||_1.
+    # Scale alpha to match the sum-of-squares objective used by fit_analytical.
+    alpha = regularization / (2 * num_viewers)
+    for movie_id in range(num_movies):
+        feature_ids = np.concatenate(
+            (np.arange(movie_id), np.arange(movie_id + 1, num_movies))
+        )
+        regressor = Lasso(
+            alpha=alpha,
+            fit_intercept=False,
+            max_iter=max_iter,
+            tol=tolerance,
+            selection="cyclic",
+        )
+        _ = regressor.fit(
+            viewer_features[:, feature_ids],
+            np.asarray(targets[movie_id, :].toarray()).ravel(),
+        )
+        weights[movie_id, feature_ids] = regressor.coef_
+
+    return ItemLinearModel(weights, float(regularization), "lasso")
+
+
+# ---------------------------------------------------------------------------
 # SGD APPROACH (separate, iterative alternative)
 # This fits one approximate regression per movie using sklearn's optimizer.
 # It is useful for comparing approaches, but is not used by model selection.
@@ -162,7 +211,7 @@ def reconstruction_loss(
     *,
     batch_size: int = 256,
 ) -> float:
-    """Return ||H-XH||_F^2 + lambda*||X||_F^2 in bounded memory."""
+    """Return the model's regularized reconstruction objective in bounded memory."""
     if interactions.shape[0] != model.weights.shape[1]:
         raise ValueError("Model and interaction movie dimensions must match.")
     if type(batch_size) is not int:
@@ -181,5 +230,9 @@ def reconstruction_loss(
         residual_norm = float(np.linalg.norm(residual))
         squared_error += residual_norm**2
     # The model penalty is independent of viewer batching, so add it once.
-    weight_norm = float(np.linalg.norm(model.weights))
-    return squared_error + model.regularization * weight_norm**2
+    if model.method == "lasso":
+        penalty = model.regularization * float(np.abs(model.weights).sum())
+    else:
+        weight_norm = float(np.linalg.norm(model.weights))
+        penalty = model.regularization * weight_norm**2
+    return squared_error + penalty

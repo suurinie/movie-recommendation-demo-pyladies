@@ -107,6 +107,26 @@ def test_selects_candidate_by_validation_recall_and_reports_baseline() -> None:
     assert all(0 <= score.metrics.ndcg_at_k <= 1 for score in result.scores)
 
 
+def test_select_regularization_supports_lasso_solver() -> None:
+    matrix = _structured_matrix()
+    split = split_viewers(matrix, seed=5)
+
+    result = select_regularization(
+        split.train,
+        split.validation,
+        candidates=(1.0, 10.0),
+        input_likes=2,
+        k=3,
+        seed=6,
+        solver="l1",
+    )
+
+    assert result.best_model.method == "lasso"
+    assert result.best_regularization == max(
+        result.scores, key=lambda score: score.metrics.recall_at_k
+    ).regularization
+
+
 def test_selection_is_reproducible() -> None:
     matrix = _structured_matrix()
     split = split_viewers(matrix, seed=5)

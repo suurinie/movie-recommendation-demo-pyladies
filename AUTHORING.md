@@ -210,12 +210,13 @@ an explicit matrix inverse. The solve is over movies, not viewers.
 ```python
 from scipy.sparse import load_npz
 
-from movie_demo.model import fit_analytical, fit_sgd
+from movie_demo.model import fit_analytical, fit_lasso, fit_sgd
 from movie_demo.splitting import split_viewers
 
 matrix = load_npz("data/synthetic/seed-42-50000/interactions.npz").tocsc()
 split = split_viewers(matrix, seed=42)
 model = fit_analytical(split.train, regularization=100.0)
+lasso_model = fit_lasso(split.train, regularization=100.0, max_iter=10_000)
 sgd_model = fit_sgd(split.train, regularization=100.0, max_iter=1_000, seed=42)
 
 # One validation viewer's scores; selected movies are masked to -inf.
@@ -233,10 +234,23 @@ its familiar sklearn training API. The analytical solve is exact and much
 faster for this 1,000-movie catalog; SGD is included to teach iterative fitting
 and provides a comparison.
 
-Both implementations fit only training viewers; validation/test viewer columns
+`fit_lasso` uses scikit-learn's `Lasso` coordinate-descent solver, once per
+target movie, excluding the target from its own features. It minimizes
+`||H - XH||_F^2 + lambda * ||X||_1` with a zero diagonal; the L1 penalty can
+make connection weights exactly zero. Since sklearn minimizes
+`||y - Z w||_2^2 / (2 * number_of_viewers) + alpha * ||w||_1`, the code sets
+`alpha = lambda / (2 * number_of_viewers)`. `max_iter` and `tolerance` control
+the iterative solve. `reconstruction_loss` uses the matching L1 penalty for
+models returned by `fit_lasso`.
+
+All three implementations fit only training viewers; validation/test viewer columns
 remain held out. The sparse binary interactions must be cast to floating point
 before forming `H H.T`; integer matrix multiplication can overflow even if the
 result is cast to float afterward.
+
+The Streamlit demo and `select_regularization` currently use the analytical L2
+fit. `fit_lasso` is available for code experiments; selecting an L1 penalty
+still requires evaluating L1 candidate fits on validation viewers.
 
 ## Select regularization on validation viewers
 

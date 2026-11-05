@@ -4,7 +4,7 @@ from typing import Literal, cast
 import numpy as np
 from scipy.sparse import csc_array
 
-from movie_demo.model import ItemLinearModel, fit_analytical
+from movie_demo.model import ItemLinearModel, fit_analytical, fit_lasso
 
 DEFAULT_LAMBDAS = (1.0, 10.0, 100.0, 1_000.0, 10_000.0, 100_000.0)
 DEFAULT_INPUT_LIKES = 5
@@ -201,9 +201,10 @@ def select_regularization(
     k: int = DEFAULT_CUTOFF,
     seed: int = DEFAULT_EVALUATION_SEED,
     metric: str = "recall_at_k",
+    solver: Literal["l1", "l2"] = "l2",
     batch_size: int = DEFAULT_EVALUATION_BATCH_SIZE,
 ) -> ModelSelectionResult:
-    """Select ridge regularization by ranking validation viewers' held-out likes."""
+    """Select regularization by ranking validation viewers' held-out likes."""
     if training.shape[0] != validation.shape[0]:
         raise ValueError("Training and validation movie dimensions must match.")
     if not candidates:
@@ -216,6 +217,8 @@ def select_regularization(
         raise ValueError("Regularization candidates must be unique.")
     if metric not in ("ndcg_at_k", "recall_at_k"):
         raise ValueError("metric must be 'ndcg_at_k' or 'recall_at_k'.")
+    if solver not in ("l1", "l2"):
+        raise ValueError("solver must be 'l1' or 'l2'.")
     if validation.shape[1] < 1:
         raise ValueError("Validation interactions must contain at least one viewer.")
 
@@ -223,7 +226,10 @@ def select_regularization(
     scores: list[LambdaScore] = []
     models: list[ItemLinearModel] = []
     for regularization in candidates:
-        model = fit_analytical(training, regularization=float(regularization))
+        if solver == "l1":
+            model = fit_lasso(training, regularization=float(regularization))
+        else:
+            model = fit_analytical(training, regularization=float(regularization))
         models.append(model)
         scores.append(
             LambdaScore(
