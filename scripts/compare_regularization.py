@@ -21,7 +21,7 @@ DEFAULT_DETAILS_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-details.png
 DEFAULT_WEIGHTS_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights.npz"
 FULL_DATA_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-comparison-full.png"
 FULL_DATA_DETAILS_OUTPUT = (
-    PROJECT_ROOT / "slides" / "assets" / "l1-l2-details-full.png"
+    PROJECT_ROOT / "slides" / "assets" / "l1-l2-signed-links-full.png"
 )
 FULL_DATA_WEIGHTS_OUTPUT = (
     PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights-full.npz"
@@ -152,6 +152,7 @@ def _plot_details(
     l1_weights: np.ndarray,
     movies: tuple[MovieChoice, ...],
     output: Path,
+    preferred_target: str = "Tonari no Totoro",
 ) -> None:
     off_diagonal = ~np.eye(l2_weights.shape[0], dtype=bool)
     l2_values = l2_weights[off_diagonal]
@@ -197,26 +198,39 @@ def _plot_details(
     histogram_axis.set_ylabel("Number of connections")
     histogram_axis.legend(frameon=False)
 
-    l1_row_counts = np.count_nonzero(l1_weights, axis=1)
-    nonzero_rows = np.flatnonzero(l1_row_counts)
-    if len(nonzero_rows):
-        ordered_rows = nonzero_rows[np.argsort(l1_row_counts[nonzero_rows])]
-        target_id = int(ordered_rows[len(ordered_rows) // 2])
-    else:
-        target_id = int(np.argmax(np.count_nonzero(l2_weights, axis=1)))
+    connection_count = 5
+    positive_counts = np.count_nonzero(l1_weights > 0, axis=1)
+    negative_counts = np.count_nonzero(l1_weights < 0, axis=1)
+    preferred_ids = [
+        movie.movie_id
+        for movie in movies
+        if movie.title.casefold() == preferred_target.casefold()
+    ]
+    target_id = preferred_ids[0] if preferred_ids else -1
+    if (
+        target_id < 0
+        or not positive_counts[target_id]
+        or not negative_counts[target_id]
+    ):
+        candidate_rows = np.flatnonzero((positive_counts > 0) & (negative_counts > 0))
+        if len(candidate_rows):
+            negative_strength = np.abs(
+                np.minimum(l1_weights[candidate_rows], 0)
+            ).sum(axis=1)
+            target_id = int(candidate_rows[np.argmax(negative_strength)])
+        else:
+            target_id = int(np.argmax(negative_counts))
 
-    connection_count = 6
-    l2_top = np.argsort(-np.abs(l2_weights[target_id]))[:connection_count]
-    l1_top = np.argsort(-np.abs(l1_weights[target_id]))[:connection_count]
-    connection_ids = set(l2_top.tolist()) | set(l1_top.tolist())
-    connection_ids.discard(target_id)
-    connection_ids = sorted(
-        connection_ids,
-        key=lambda movie_id: max(
-            abs(l2_weights[target_id, movie_id]), abs(l1_weights[target_id, movie_id])
-        ),
-        reverse=True,
-    )[: 2 * connection_count]
+    target_l1_weights = l1_weights[target_id]
+    positive_ids = np.flatnonzero(target_l1_weights > 0)
+    positive_ids = positive_ids[
+        np.argsort(-target_l1_weights[positive_ids])[:connection_count]
+    ]
+    negative_ids = np.flatnonzero(target_l1_weights < 0)
+    negative_ids = negative_ids[
+        np.argsort(target_l1_weights[negative_ids])[:connection_count]
+    ]
+    connection_ids = np.concatenate((positive_ids, negative_ids))
 
     connection_axis = axes[1]
     y_positions = np.arange(len(connection_ids))
@@ -241,8 +255,10 @@ def _plot_details(
     connection_axis.set_yticks(y_positions, labels)
     connection_axis.invert_yaxis()
     connection_axis.axvline(0, color="#555555", linewidth=0.8)
-    connection_axis.set_title(f"Strongest links into {movies[target_id].title}")
-    connection_axis.set_xlabel("Weight relative to this model's row maximum")
+    connection_axis.set_title(
+        f"Strongest positive and negative L1 links into {movies[target_id].title}"
+    )
+    connection_axis.set_xlabel("Weight relative to each model's row maximum")
     connection_axis.legend(frameon=False)
     connection_axis.grid(axis="x", alpha=0.2)
 
@@ -275,6 +291,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path)
     parser.add_argument("--details-output", type=Path)
     parser.add_argument("--weights-output", type=Path)
+    parser.add_argument("--detail-movie", default="Tonari no Totoro")
     args = parser.parse_args()
     default_output, default_details_output, default_weights_output = _default_outputs(
         args.full_data
@@ -342,6 +359,7 @@ def main() -> None:
         l1_result.best_model.weights,
         movies,
         details_output,
+        preferred_target=args.detail_movie,
     )
     weights_output.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
