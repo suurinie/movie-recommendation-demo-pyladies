@@ -19,6 +19,13 @@ DATA_DIR = PROJECT_ROOT / "data" / "synthetic" / "seed-42-50000-v2"
 DEFAULT_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-comparison.png"
 DEFAULT_DETAILS_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-details.png"
 DEFAULT_WEIGHTS_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights.npz"
+FULL_DATA_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-comparison-full.png"
+FULL_DATA_DETAILS_OUTPUT = (
+    PROJECT_ROOT / "slides" / "assets" / "l1-l2-details-full.png"
+)
+FULL_DATA_WEIGHTS_OUTPUT = (
+    PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights-full.npz"
+)
 DEFAULT_L1_LAMBDAS = (1.0, 10.0, 100.0)
 
 
@@ -42,6 +49,12 @@ def _off_diagonal_values(weights: np.ndarray) -> np.ndarray:
 def _zero_fraction(weights: np.ndarray) -> float:
     values = _off_diagonal_values(weights)
     return float(np.count_nonzero(values == 0) / values.size)
+
+
+def _default_outputs(full_data: bool) -> tuple[Path, Path, Path]:
+    if full_data:
+        return FULL_DATA_OUTPUT, FULL_DATA_DETAILS_OUTPUT, FULL_DATA_WEIGHTS_OUTPUT
+    return DEFAULT_OUTPUT, DEFAULT_DETAILS_OUTPUT, DEFAULT_WEIGHTS_OUTPUT
 
 
 def _plot_matrices(
@@ -254,12 +267,21 @@ def main() -> None:
     parser.add_argument(
         "--full-data",
         action="store_true",
-        help="Use all training and validation viewers instead of a sample.",
+        help=(
+            "Use all training and validation viewers; save to separate *-full "
+            "files so preview assets are preserved."
+        ),
     )
-    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--details-output", type=Path, default=DEFAULT_DETAILS_OUTPUT)
-    parser.add_argument("--weights-output", type=Path, default=DEFAULT_WEIGHTS_OUTPUT)
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--details-output", type=Path)
+    parser.add_argument("--weights-output", type=Path)
     args = parser.parse_args()
+    default_output, default_details_output, default_weights_output = _default_outputs(
+        args.full_data
+    )
+    output = args.output or default_output
+    details_output = args.details_output or default_details_output
+    weights_output = args.weights_output or default_weights_output
 
     interactions = csc_array(load_npz(DATA_DIR / "interactions.npz"))
     movies = load_movie_index(DATA_DIR / "movies.csv")
@@ -313,17 +335,17 @@ def main() -> None:
         l1_recall,
         training.shape[1],
         validation.shape[1],
-        args.output,
+        output,
     )
     _plot_details(
         l2_result.best_model.weights,
         l1_result.best_model.weights,
         movies,
-        args.details_output,
+        details_output,
     )
-    args.weights_output.parent.mkdir(parents=True, exist_ok=True)
+    weights_output.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
-        args.weights_output,
+        weights_output,
         movie_ids=np.arange(len(movies), dtype=np.int32),
         l2_weights=l2_result.best_model.weights,
         l1_weights=l1_result.best_model.weights,
@@ -340,9 +362,9 @@ def main() -> None:
     print(f"L1 validation Recall@10: {l1_recall:.5f}")
     print(f"L2 off-diagonal zeros: {_zero_fraction(l2_result.best_model.weights):.1%}")
     print(f"L1 off-diagonal zeros: {_zero_fraction(l1_result.best_model.weights):.1%}")
-    print(f"Saved figure to {args.output}")
-    print(f"Saved detail figure to {args.details_output}")
-    print(f"Saved matrices and metadata to {args.weights_output}")
+    print(f"Saved figure to {output}")
+    print(f"Saved detail figure to {details_output}")
+    print(f"Saved matrices and metadata to {weights_output}")
 
 
 if __name__ == "__main__":
