@@ -159,10 +159,9 @@ Selected favorites can be removed from their chips.
 Before recommendations are enabled, select candidate λ values and click
 **Train and compare**. The app fits each analytical model on the 40,000
 training viewers, chooses λ using 5,000 validation viewers, and leaves 5,000
-test viewers untouched. It compares validation NDCG@10 and Recall@10 with a
-popularity baseline, then uses the selected training-only model for favorites.
-The comparison shows one popularity-baseline result alongside each candidate,
-with separate charts for NDCG@10 and Recall@10 and KPI deltas versus popularity.
+test viewers untouched. It compares validation Recall@10 with a popularity
+baseline, then uses the selected training-only model for favorites. The
+comparison shows one popularity-baseline result alongside each candidate.
 The **Under the hood** section explains the tools and shows the actual Python
 implementations for splitting, fitting, and model selection. This is an
 analytical linear-algebra solve, not an epoch-based training animation.
@@ -246,9 +245,10 @@ For each validation viewer, five likes are selected deterministically as
 recommendation inputs; all their other known likes are targets. The same
 input/target split is reused for every candidate. Already-liked movies are
 excluded from ranking. The default candidates are `1, 10, 100, 1000, 10000`,
-and `100000`; NDCG@10 is the primary selection metric (Recall@10 breaks exact ties).
-A popularity baseline uses only training-viewer like counts. Test viewers are
-not used for model selection.
+and `100000`; select the lambda with the highest mean Recall@10. Recall@10 is
+the fraction of a viewer's held-out likes found in the top ten, averaged across
+validation viewers. A popularity baseline uses only training-viewer like
+counts. Test viewers are not used for model selection.
 
 Run the selection on the checked-in dataset:
 
@@ -258,7 +258,7 @@ uv run movie-demo select-lambda \
 ```
 
 The JSON output contains the selected lambda, per-candidate validation
-Recall@10/NDCG@10, and the popularity baseline. The validation input selection
+Recall@10, and the popularity baseline. The validation input selection
 and viewer split have independent seeds (`--evaluation-seed` and
 `--split-seed`). Use `--lambdas 10 100 1000` to provide a custom positive
 candidate grid.
@@ -277,17 +277,15 @@ selection = select_regularization(split.train, split.validation)
 print(selection.best_regularization, selection.scores)
 ```
 
-Recall@k divides retrieved target likes by all target likes for that viewer;
-NDCG@k uses binary relevance and the ideal ranking for that viewer's target
-set. Metrics are averaged across validation viewers. After choosing lambda,
-the held-out test group can be used once for final reporting; it must not
-influence candidate values or selection.
+For each viewer, Recall@k is the fraction of held-out likes found in the top
+`k` recommendations. The reported metric is the average across validation
+viewers; it does not distinguish the order of movies within the top `k`. After
+choosing lambda, the held-out test group can be used once for final reporting;
+it must not influence candidate values or selection.
 
-With the default split and evaluation seeds on the committed matrix, the
-selected value is `lambda=10000` (NDCG@10 0.04151, Recall@10 0.02512). The
-training-only popularity baseline scores 0.02827 and 0.01766, respectively.
-These are validation results for this synthetic dataset, not estimates of
-real-world recommendation quality.
+The command above reports the selected lambda and validation Recall@10 for
+this synthetic dataset; these are not estimates of real-world recommendation
+quality.
 
 On the committed data, the 40,000-viewer training split with `lambda=100`
 produced a finite zero-diagonal analytical model in about 0.13 seconds. The

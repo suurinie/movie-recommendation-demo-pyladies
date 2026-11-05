@@ -25,8 +25,8 @@ sampling probability, instead of the log-compressed counts used by v1.
 
 1. In **Train and compare models**, keep or adjust the candidate λ values and
    select **Train and compare**.
-2. Compare validation NDCG@10 and Recall@10 for each model against the
-   popularity baseline. The selected λ is chosen using validation data.
+2. Compare validation Recall@10 for each model against the popularity
+   baseline. The λ with the highest validation Recall@10 is selected.
 3. In **Try your favorites**, search for a movie (try `Totoro`) and add it to
    favorites, or select movies directly from the **Your favorites** checkbox
    menu.

@@ -114,17 +114,30 @@
   \end{center}
 \end{frame}
 
-\begin{frame}{Train, validate, and test}
+\begin{frame}{Choosing $\lambda$ with Recall@10}
   \begin{itemize}
-    \item Split your viewers into training, validation, and test sets.
-    \item Use the \emph{training} set to learn $X$ for a handful of $\lambda$'s.
-    \item Use the \emph{validation} set to pick up the best $\lambda$.
-    \item Evaluate the final performance on the \emph{test} set.
+    \item Fit each candidate $\lambda$ using training viewers.
+    \item For each validation viewer, use five likes as input; hold out the rest.
+    \item Recommend ten movies and count the held-out likes they contain.
   \end{itemize}
 
-  \begin{block}{Important}
-  \emph{Never ever} use the test set to tune $\lambda$; only use it for the final evaluation.
-  \end{block}
+  \[
+    \mathrm{Recall@10} =
+    \frac{\text{held-out likes in top ten}}{\text{all held-out likes}}
+  \]
+
+   \begin{itemize}
+    \item Pick the highest average Recall@10 across validation viewers.
+  \end{itemize}
+\begin{block}{Critical point}
+    Keep test viewers out of selection; use them only for the final check.
+\end{block}
+
+Why?
+\begin{itemize}
+  \item Performance test would be too optimistic.
+  \item You'd be in bad trouble when production starts.
+\end{itemize}
 
 \end{frame}
 

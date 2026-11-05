@@ -76,7 +76,7 @@ def test_known_ranking_has_perfect_recall_and_ndcg() -> None:
     assert metrics == RankingMetrics(1.0, 1.0, viewers=1, target_likes=2)
 
 
-def test_selects_candidate_by_validation_ndcg_and_reports_baseline() -> None:
+def test_selects_candidate_by_validation_recall_and_reports_baseline() -> None:
     matrix = _structured_matrix()
     split = split_viewers(matrix, seed=5)
     candidates = (0.1, 1.0, 10.0, 100.0)
@@ -91,7 +91,10 @@ def test_selects_candidate_by_validation_ndcg_and_reports_baseline() -> None:
     )
 
     assert isinstance(result, ModelSelectionResult)
-    assert result.metric == "ndcg_at_k"
+    assert result.metric == "recall_at_k"
+    assert result.best_regularization == max(
+        result.scores, key=lambda score: score.metrics.recall_at_k
+    ).regularization
     assert result.best_regularization in candidates
     assert result.best_model.regularization == result.best_regularization
     assert len(result.scores) == len(candidates)

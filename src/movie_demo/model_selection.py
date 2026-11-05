@@ -200,7 +200,7 @@ def select_regularization(
     input_likes: int = DEFAULT_INPUT_LIKES,
     k: int = DEFAULT_CUTOFF,
     seed: int = DEFAULT_EVALUATION_SEED,
-    metric: str = "ndcg_at_k",
+    metric: str = "recall_at_k",
     batch_size: int = DEFAULT_EVALUATION_BATCH_SIZE,
 ) -> ModelSelectionResult:
     """Select ridge regularization by ranking validation viewers' held-out likes."""

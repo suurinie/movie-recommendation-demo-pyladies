@@ -98,12 +98,12 @@ def test_app_trains_before_search_recommendations() -> None:
     assert app.session_state["selection_result"].best_regularization == 10_000.0
     assert app.session_state["selection_viewer_counts"] == (40_000, 5_000, 5_000)
     assert app.dataframe
-    assert [item.value for item in app.subheader] == ["NDCG@10", "Recall@10"]
+    assert "Recall@10" in [item.value for item in app.subheader]
     rows = _comparison_rows(app.session_state["selection_result"])
     assert rows[-1]["Model"] == "Popularity baseline"
     assert sum(row["Model"] == "Popularity baseline" for row in rows) == 1
     assert rows[-2]["Model"] == "λ = 10000 (selected)"
-    assert "Recall@10" in rows[-1]
+    assert set(rows[-1]) == {"Model", "Recall@10"}
     assert app.dataframe
 
     app.text_input[0].set_value("Totoro")

@@ -114,8 +114,8 @@ For validation and test viewers, reveal a subset of their liked movies and hold 
 
 ### Metrics
 
-- Recall@10.
-- NDCG@10.
+- Recall@10: the fraction of held-out likes found in the top ten, averaged
+  across viewers.
 - Catalog coverage.
 - Comparison against a popularity baseline computed from training interactions.
 
@@ -291,8 +291,7 @@ uv run movie-demo generate \
 - For each validation viewer, deterministically select five known likes as
   model inputs and use all remaining known likes as ranking targets.
 - Reuse the same input/target split for every candidate lambda.
-- Select by mean NDCG@10, using mean Recall@10 as a tie-breaker; mask input
-  movies before ranking.
+- Select by mean Recall@10; mask input movies before ranking.
 - Compare against a training-only popularity baseline and leave test viewers
   untouched until final evaluation.
 - Expose the workflow in the Python API and `movie-demo select-lambda` CLI.

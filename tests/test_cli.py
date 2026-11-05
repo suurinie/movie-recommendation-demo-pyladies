@@ -231,6 +231,6 @@ def test_select_lambda_command_reports_validation_results(
     assert summary["validation_viewers"] == 30
     assert summary["test_viewers"] == 30
     assert summary["best_lambda"] in (1.0, 10.0)
-    assert summary["selection_metric"] == "ndcg_at_k"
+    assert summary["selection_metric"] == "recall_at_k"
     assert [row["lambda"] for row in summary["validation_scores"]] == [1.0, 10.0]
-    assert set(summary["popularity_baseline"]) == {"recall_at_k", "ndcg_at_k"}
+    assert set(summary["popularity_baseline"]) == {"recall_at_k"}

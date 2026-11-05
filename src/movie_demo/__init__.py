@@ -84,11 +84,6 @@ def main() -> None:
         default=list(DEFAULT_LAMBDAS),
         help="Positive ridge-regularization candidates",
     )
-    selection_parser.add_argument(
-        "--metric",
-        choices=("ndcg_at_k", "recall_at_k"),
-        default="ndcg_at_k",
-    )
     args = parser.parse_args()
     if args.command is None:
         parser.print_help()
@@ -110,7 +105,6 @@ def main() -> None:
                 input_likes=args.input_likes,
                 k=args.k,
                 seed=args.evaluation_seed,
-                metric=args.metric,
             )
             print(
                 json.dumps(
@@ -124,13 +118,11 @@ def main() -> None:
                             {
                                 "lambda": score.regularization,
                                 "recall_at_k": score.metrics.recall_at_k,
-                                "ndcg_at_k": score.metrics.ndcg_at_k,
                             }
                             for score in result.scores
                         ],
                         "popularity_baseline": {
                             "recall_at_k": result.popularity_metrics.recall_at_k,
-                            "ndcg_at_k": result.popularity_metrics.ndcg_at_k,
                         },
                     },
                     indent=2,

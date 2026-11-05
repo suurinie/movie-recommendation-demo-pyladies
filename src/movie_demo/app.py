@@ -124,7 +124,6 @@ def _comparison_rows(result: ModelSelectionResult) -> list[dict[str, str | float
                     else ""
                 )
             ),
-            "NDCG@10": score.metrics.ndcg_at_k,
             "Recall@10": score.metrics.recall_at_k,
         }
         for score in result.scores
@@ -132,7 +131,6 @@ def _comparison_rows(result: ModelSelectionResult) -> list[dict[str, str | float
     rows.append(
         {
             "Model": "Popularity baseline",
-            "NDCG@10": result.popularity_metrics.ndcg_at_k,
             "Recall@10": result.popularity_metrics.recall_at_k,
         }
     )
@@ -222,19 +220,11 @@ def _show_model_selection(
         if score.regularization == result.best_regularization
     )
     baseline_metrics = result.popularity_metrics
-    metric_col, ndcg_col, recall_col, splits_col = st.columns(4)
+    metric_col, recall_col, splits_col = st.columns(3)
     _ = metric_col.metric(
         "Selected λ",
         f"{result.best_regularization:g}",
-        help="Chosen by validation NDCG@10; this is not measured on test viewers.",
-    )
-    _ = ndcg_col.metric(
-        "Validation NDCG@10",
-        f"{best_score.metrics.ndcg_at_k:.4f}",
-        delta=(
-            f"{best_score.metrics.ndcg_at_k - baseline_metrics.ndcg_at_k:+.4f} "
-            "vs popularity"
-        ),
+        help="Chosen by validation Recall@10; not measured on test viewers.",
     )
     _ = recall_col.metric(
         "Validation Recall@10",
@@ -254,20 +244,15 @@ def _show_model_selection(
         score_rows, hide_index=True, width="stretch"
     )
 
-    ndcg_chart_col, recall_chart_col = st.columns(2)
-    _ = ndcg_chart_col.subheader("NDCG@10")
-    _ = ndcg_chart_col.bar_chart(  # pyright: ignore[reportUnknownMemberType]
-        score_rows, x="Model", y="NDCG@10"
-    )
-    _ = recall_chart_col.subheader("Recall@10")
-    _ = recall_chart_col.bar_chart(  # pyright: ignore[reportUnknownMemberType]
+    _ = st.subheader("Recall@10")
+    _ = st.bar_chart(  # pyright: ignore[reportUnknownMemberType]
         score_rows, x="Model", y="Recall@10"
     )
     _ = st.caption(
         " ".join(
             (
-                "Each chart shows the popularity baseline once for direct comparison.",
-                "NDCG rewards rank position; Recall counts held-out likes in top ten.",
+                "Recall@10 is the fraction of held-out likes found in the top ten.",
+                "The popularity baseline is included for comparison.",
             )
         )
     )
@@ -311,8 +296,7 @@ regularized solve.
                 " ".join(
                     (
                         "Use 5 validation likes as input; hold the rest out.",
-                        "Compare every λ on the same split; choose mean NDCG@10.",
-                        "Recall@10 breaks selection ties.",
+                        "Compare every λ on the same split; choose highest mean Recall@10.",
                     )
                 )
             )
@@ -321,8 +305,8 @@ regularized solve.
             _ = st.markdown(
                 " ".join(
                     (
-                        "Recall@10 counts held-out likes in the top ten.",
-                        "NDCG@10 also rewards relevant movies ranked nearer the top.",
+                        "For each viewer, Recall@10 is the fraction of held-out likes in the top ten.",
+                        "Average that fraction across validation viewers.",
                     )
                 )
             )
