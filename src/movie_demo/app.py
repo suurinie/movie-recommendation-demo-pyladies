@@ -1,25 +1,23 @@
-import inspect
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from pathlib import Path
 from typing import cast
 
+import numpy as np
 import streamlit as st
 from scipy.sparse import csc_array, load_npz
 
 from movie_demo.demo import (
     MovieChoice,
-    find_movies,
     load_movie_index,
     recommend_movies,
 )
-from movie_demo.model import fit_analytical
+from movie_demo.model import ItemLinearModel
 from movie_demo.model_selection import (
     DEFAULT_CUTOFF,
     DEFAULT_EVALUATION_SEED,
     DEFAULT_INPUT_LIKES,
     DEFAULT_LAMBDAS,
     ModelSelectionResult,
-    evaluate_ranking,
     select_regularization,
 )
 from movie_demo.splitting import DEFAULT_SPLIT_SEED, split_viewers
@@ -28,6 +26,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data" / "synthetic" / "seed-42-50000-v2"
 MATRIX_PATH = DATA_DIR / "interactions.npz"
 MOVIES_PATH = DATA_DIR / "movies.csv"
+L1_WEIGHTS_PATH = PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights-full.npz"
 
 
 @st.cache_data
@@ -39,6 +38,28 @@ def _load_movies(path: str) -> tuple[MovieChoice, ...]:
 def _load_interactions(path: str) -> csc_array:
     interactions = cast(csc_array, load_npz(path))
     return interactions
+
+
+@st.cache_resource
+def _load_precomputed_l1(
+    path: str,
+) -> tuple[ItemLinearModel, float, float, int, int]:
+    with np.load(path, allow_pickle=False) as saved_model:
+        model = ItemLinearModel(
+            weights=np.asarray(saved_model["l1_weights"], dtype=np.float64),
+            regularization=float(saved_model["l1_lambda"]),
+            method="lasso",
+        )
+        recall_at_10 = float(saved_model["l1_validation_recall_at_10"])
+        training_viewers = int(saved_model["training_viewers"])
+        validation_viewers = int(saved_model["validation_viewers"])
+    return (
+        model,
+        model.regularization,
+        recall_at_10,
+        training_viewers,
+        validation_viewers,
+    )
 
 
 @st.cache_resource
@@ -68,10 +89,6 @@ def _train_and_select(
     return result, counts
 
 
-def _movie_label(movie: MovieChoice) -> str:
-    return movie.label
-
-
 def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
     def label(movie_id: int) -> str:
         return movies[movie_id].label
@@ -86,27 +103,6 @@ def _alphabetical_movie_ids(movies: tuple[MovieChoice, ...]) -> tuple[int, ...]:
             key=lambda movie_id: movies[movie_id].title.casefold(),
         )
     )
-
-
-def _merge_favorite_ids(
-    favorite_ids: Iterable[int], movie_ids: Iterable[int]
-) -> list[int]:
-    merged_ids = list(favorite_ids)
-    known_ids = set(merged_ids)
-    for movie_id in movie_ids:
-        if movie_id not in known_ids:
-            merged_ids.append(movie_id)
-            known_ids.add(movie_id)
-    return merged_ids
-
-
-def _add_favorites(movie_ids: Iterable[int]) -> bool:
-    current_ids = cast(list[int], st.session_state["favorite_movie_ids"])
-    updated_ids = _merge_favorite_ids(current_ids, movie_ids)
-    if updated_ids == current_ids:
-        return False
-    st.session_state["favorite_movie_ids"] = updated_ids
-    return True
 
 
 def _lambda_label(value: float) -> str:
@@ -143,22 +139,8 @@ def _show_model_selection(
 ) -> ModelSelectionResult | None:
     _ = st.header("1. Train and compare models")
     _ = st.write(
-        " ".join(
-            (
-                "We are solving a *regularized* recommendation problem.\n\n",
-                "    min_X||H - XH||_F² + λ||X||_F², subject to diag(X) = 0\n\n ",
-                "`H` is movies × viewers; `X` predicts movie scores from other movies.",
-                "The regularization parameter `λ` is a scalar that constitutes a ",
-                "*family of models*.",
-                "We select regularization values and fit with them.",
-                "The best model is selected based on validation performance.",
-                "We have split the viewers into training, validation, and test sets.\n",
-                " 1. Fit `X` for each `λ` on training viewers\n",
-                " 2. Choose best `λ` on validation viewers\n",
-                " 3. Keep test viewers untouched until the model is trained.\n\n",
-                "This is the way to measure real-world recommendation performance.",
-            )
-        )
+        "Train candidate L2 models and choose the one that finds the most "
+        "held-out likes in the validation viewers' top ten."
     )
     _ = st.caption(
         " ".join(
@@ -259,64 +241,45 @@ def _show_model_selection(
     return result
 
 
+def _show_precomputed_l1(movie_count: int) -> tuple[ItemLinearModel, float] | None:
+    _ = st.header("1. Use the precomputed L1 model")
+    try:
+        model, regularization, recall_at_10, training_viewers, validation_viewers = (
+            _load_precomputed_l1(str(L1_WEIGHTS_PATH))
+        )
+    except (OSError, KeyError, ValueError) as exc:
+        _ = st.error(f"Could not load the precomputed L1 model: {exc}")
+        return None
+    if model.weights.shape != (movie_count, movie_count):
+        _ = st.error("The precomputed L1 model does not match the movie catalog.")
+        return None
+
+    model_col, lambda_col, recall_col = st.columns(3)
+    _ = model_col.metric("Model", "L1 / Lasso")
+    _ = lambda_col.metric("Selected λ", f"{regularization:g}")
+    _ = recall_col.metric("Validation Recall@10", f"{recall_at_10:.4f}")
+    _ = st.caption(
+        f"Loaded precomputed weights fitted on {training_viewers:,} viewers; "
+        f"λ was selected using {validation_viewers:,} validation viewers."
+    )
+    return model, regularization
+
+
 def _show_implementation_details() -> None:
-    with st.expander("Under the hood: Python and the chosen tools"):
+    with st.expander("About the models"):
         _ = st.markdown(
             """
-This demo keeps the data and model pipeline in ordinary Python modules. The
-web interface is only the front end:
-
-- **NumPy** makes the seeded viewer split and handles dense linear algebra.
-- **SciPy sparse** stores the movie-by-viewer likes matrix efficiently;
-  **SciPy linalg** solves the regularized linear system.
-- **Streamlit** provides the interactive workflow without a separate
-  front-end stack.
-- **uv** manages the Python project and lockfile; **pytest** checks behavior;
-  **Ruff** checks Python style.
-
-The fit is analytical, not an epoch-based optimizer: each λ produces one
-regularized solve.
+The L2 option is fitted here and selected using validation Recall@10. The L1
+option loads a precomputed model trained on the same synthetic training data.
+The separate test viewers are not used to select either model.
 """
         )
-        with st.expander("How do we split viewers?"):
-            _ = st.markdown("Whole-viewer splits keep held-out likes out of training.")
-            _ = st.code(inspect.getsource(split_viewers), language="python")
-        with st.expander("What does the model fit?"):
-            _ = st.markdown(
-                " ".join(
-                    (
-                        "Objective: `||H - XH||_F² + λ||X||_F²`, with `diag(X) = 0`.",
-                        "`H` is movies × viewers; `X` predicts movie scores.",
-                    )
-                )
-            )
-            _ = st.code(inspect.getsource(fit_analytical), language="python")
-        with st.expander("How is λ selected?"):
-            _ = st.markdown(
-                " ".join(
-                    (
-                        "Use 5 validation likes as input; hold the rest out.",
-                        "Compare every λ on the same split; choose highest mean Recall@10.",
-                    )
-                )
-            )
-            _ = st.code(inspect.getsource(select_regularization), language="python")
-        with st.expander("How are recommendations evaluated?"):
-            _ = st.markdown(
-                " ".join(
-                    (
-                        "For each viewer, Recall@10 is the fraction of held-out likes in the top ten.",
-                        "Average that fraction across validation viewers.",
-                    )
-                )
-            )
-            _ = st.code(inspect.getsource(evaluate_ranking), language="python")
 
 
 def main() -> None:
     st.set_page_config(page_title="Movie favorites", page_icon="🎬")
     _ = st.title("Movie recommendations")
-    _ = st.write("Search for favorites or select them from the checkbox menu.")
+    _ = st.write("Select favorite movies in the picker below.")
     _ = st.caption(
         "Experiment dataset: sampler v2 — raw vote counts drive 10% exploration."
     )
@@ -333,54 +296,37 @@ def main() -> None:
         _ = st.error(f"Could not load the movie demo data: {exc}")
         st.stop()
 
-    selection_result = _show_model_selection(
-        interactions.shape[0], interactions.shape[1]
+    model_choice = st.radio(
+        "Recommendation model",
+        options=("L2 — train and compare", "L1 — precomputed"),
+        horizontal=True,
+        key="recommendation_model",
     )
+    selected_model: ItemLinearModel | None = None
+    selected_regularization: float | None = None
+    selected_model_name = "L2"
+    if model_choice == "L2 — train and compare":
+        selection_result = _show_model_selection(
+            interactions.shape[0], interactions.shape[1]
+        )
+        if selection_result is not None:
+            selected_model = selection_result.best_model
+            selected_regularization = selection_result.best_regularization
+    else:
+        precomputed_l1 = _show_precomputed_l1(interactions.shape[0])
+        if precomputed_l1 is not None:
+            selected_model, selected_regularization = precomputed_l1
+            selected_model_name = "L1"
+
     _show_implementation_details()
     _ = st.header("2. Try your favorites")
     _ = st.write(
-        "Search for movies or select favorites from the checkbox menu below. "
-        + "Recommendations become available "
-        + "after training and comparing models above."
+        "Choose movies in the alphabetical favorites selector. "
+        + "Recommendations use the selected model above."
     )
 
     if "favorite_movie_ids" not in st.session_state:
         st.session_state.favorite_movie_ids = []
-
-    with st.form("movie_title_search"):
-        search_text = st.text_input(
-            "Find a movie by title",
-            placeholder="Try Totoro",
-            help="Type any part of a title; matching is case-insensitive.",
-        )
-        submitted = st.form_submit_button("Search")
-    if submitted:
-        st.session_state["movie_search_query"] = search_text.strip()
-
-    query = cast(str, st.session_state.get("movie_search_query", ""))
-    if query:
-        matches, match_count = find_movies(movies, query)
-        if matches:
-            selected_match = st.selectbox(
-                "Matching movies",
-                options=matches,
-                format_func=_movie_label,
-                key="search_movie_choice",
-            )
-            if match_count > len(matches):
-                _ = st.caption(
-                    f"Showing {len(matches)} of {match_count} matches. "
-                    + "Refine your search to narrow the list."
-                )
-            if st.button("Add movie to favorites"):
-                if _add_favorites((selected_match.movie_id,)):
-                    st.rerun()
-                else:
-                    _ = st.info("That movie is already in your favorites.")
-        else:
-            _ = st.info(f"No movie titles contain {query!r}.")
-    else:
-        _ = st.caption("Enter part of a title and select Search to see matches.")
 
     favorite_ids = st.multiselect(
         "Your favorites",
@@ -390,9 +336,9 @@ def main() -> None:
         help="You can remove a selection with the x on its chip.",
     )
 
-    if favorite_ids and selection_result is not None:
+    if favorite_ids and selected_model is not None:
         recommendations = recommend_movies(
-            selection_result.best_model, movies, favorite_ids, limit=10
+            selected_model, movies, favorite_ids, limit=10
         )
         _ = st.subheader("Recommended for you")
         if recommendations:
@@ -414,13 +360,13 @@ def main() -> None:
         _ = st.caption(
             " ".join(
                 (
-                    f"Using λ={selection_result.best_regularization:g} model.",
+                    f"Using {selected_model_name}, λ={selected_regularization:g}.",
                     "Scores are rankings, not probabilities.",
                 )
             )
         )
     elif favorite_ids:
-        _ = st.info("Train and compare models above to see recommendations.")
+        _ = st.info("Select an available model above to see recommendations.")
     else:
         _ = st.info("Add at least one favorite to get recommendations.")
 

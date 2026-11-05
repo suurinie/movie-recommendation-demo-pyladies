@@ -7,7 +7,6 @@ from streamlit.testing.v1 import AppTest
 from movie_demo.app import (
     _alphabetical_movie_ids,
     _comparison_rows,
-    _merge_favorite_ids,
 )
 from movie_demo.demo import (
     MovieChoice,
@@ -66,10 +65,6 @@ def test_find_movies_does_not_match_empty_search() -> None:
     assert find_movies(movies, "   ") == ((), 0)
 
 
-def test_merge_favorite_ids_adds_unique_movies_in_selection_order() -> None:
-    assert _merge_favorite_ids([5, 2], [2, 4, 5, 3, 4]) == [5, 2, 4, 3]
-
-
 def test_alphabetical_movie_ids_sort_by_title_without_changing_ids() -> None:
     movies = (
         MovieChoice(0, "zebra", "", None),
@@ -80,7 +75,7 @@ def test_alphabetical_movie_ids_sort_by_title_without_changing_ids() -> None:
     assert _alphabetical_movie_ids(movies) == (1, 2, 0)
 
 
-def test_app_trains_before_search_recommendations() -> None:
+def test_app_trains_before_favorite_recommendations() -> None:
     app_path = Path(__file__).parents[1] / "src" / "movie_demo" / "app.py"
     app = AppTest.from_file(str(app_path)).run()
     assert not app.exception
@@ -106,18 +101,27 @@ def test_app_trains_before_search_recommendations() -> None:
     assert set(rows[-1]) == {"Model", "Recall@10"}
     assert app.dataframe
 
-    app.text_input[0].set_value("Totoro")
-    next(button for button in app.button if button.label == "Search").click().run()
+    favorites = next(box for box in app.multiselect if box.label == "Your favorites")
+    favorites.set_value([0]).run()
+    assert not app.exception
+    assert len(app.session_state["favorite_movie_ids"]) == 1
+    assert any(item.value == "Recommended for you" for item in app.subheader)
+
+
+def test_app_uses_precomputed_l1_without_training() -> None:
+    app_path = Path(__file__).parents[1] / "src" / "movie_demo" / "app.py"
+    app = AppTest.from_file(str(app_path)).run()
+
+    model_choice = next(
+        radio for radio in app.radio if radio.label == "Recommendation model"
+    )
+    model_choice.set_value("L1 — precomputed").run()
 
     assert not app.exception
-    search_selector = next(
-        box for box in app.selectbox if box.label == "Matching movies"
-    )
-    assert search_selector.options == ["Tonari no Totoro (1988, Hayao Miyazaki)"]
-    next(
-        button for button in app.button if button.label == "Add movie to favorites"
-    ).click().run()
-    assert len(app.session_state["favorite_movie_ids"]) == 1
+    assert all(button.label != "Train and compare" for button in app.button)
+    assert "Validation Recall@10" in [metric.label for metric in app.metric]
+    app.multiselect[0].set_value([0]).run()
+    assert not app.exception
     assert any(item.value == "Recommended for you" for item in app.subheader)
 
 

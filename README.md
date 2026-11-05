@@ -23,24 +23,23 @@ sampling probability, instead of the log-compressed counts used by v1.
 
 ## Try the demo
 
-1. In **Train and compare models**, keep or adjust the candidate λ values and
-   select **Train and compare**.
-2. Compare validation Recall@10 for each model against the popularity
-   baseline. The λ with the highest validation Recall@10 is selected.
-3. In **Try your favorites**, search for a movie (try `Totoro`) and add it to
-   favorites, or select movies directly from the **Your favorites** checkbox
-   menu.
+1. Choose **L2 — train and compare** to fit candidate models locally, or
+   **L1 — precomputed** to use the full-data Lasso model without waiting for a
+   fit. The saved L1 model's λ was selected using validation Recall@10.
+2. In L2 mode, adjust the candidate λ values and select **Train and compare**.
+   Compare validation Recall@10 against the popularity baseline.
+3. In **Try your favorites**, select movies from the alphabetical
+   **Your favorites** picker.
 4. Explore the recommendations. They are ranked suggestions, not probabilities.
 
-Training uses synthetic likes from 40,000 viewers, validation uses 5,000
-viewers to compare settings, and a separate 5,000-viewer test set is kept
-untouched. The recommendations use the selected model trained on the training
-viewers.
+L2 training uses 40,000 synthetic training viewers, selects λ with 5,000
+validation viewers, and leaves 5,000 test viewers untouched. The precomputed L1
+model was fitted on the same training split and selected using the same
+validation split. Neither model uses the test viewers for selection.
 
-The **Under the hood** section in the app shows the Python and tools used for
-the data split, model fit, and λ selection. The model learns movie-to-movie
-relationships from sparse likes; it does not use the catalog's genres,
-directors, or actors to make recommendations.
+The **About the models** section summarizes model provenance and evaluation.
+Recommendations use movie-to-movie relationships learned from sparse likes,
+not the catalog's genres, directors, or actors.
 
 For data generation, command-line usage, model details, and development
 instructions, see the [author and developer guide](./AUTHORING.md).

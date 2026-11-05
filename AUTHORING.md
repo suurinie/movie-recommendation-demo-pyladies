@@ -150,22 +150,19 @@ Start the Streamlit app from the project root:
 uv run streamlit run src/movie_demo/app.py
 ```
 
-Enter part of a title (for example, `Totoro`) and select **Search** to show
-matches; the app does not search on each keystroke. At most 25 matching titles
-are shown at a time, so refine broad searches. Add a match to your favorites,
-or expand the alphabetical catalog to browse titles, directors, and years.
-Selected favorites can be removed from their chips.
+Select favorites directly from the alphabetical **Your favorites** picker.
+Movie labels include the title, year, and director. Remove selections with the
+x on their chips.
 
-Before recommendations are enabled, select candidate λ values and click
-**Train and compare**. The app fits each analytical model on the 40,000
-training viewers, chooses λ using 5,000 validation viewers, and leaves 5,000
-test viewers untouched. It compares validation Recall@10 with a popularity
-baseline, then uses the selected training-only model for favorites. The
-comparison shows one popularity-baseline result alongside each candidate.
-The **Under the hood** section explains the tools and shows the actual Python
-implementations for splitting, fitting, and model selection. This is an
-analytical linear-algebra solve, not an epoch-based training animation.
-Recommendation scores are rankings, not probabilities.
+Choose **L2 — train and compare** to fit analytical candidates on the 40,000
+training viewers, select λ using the 5,000 validation viewers, and compare
+Recall@10 with a popularity baseline. The 5,000 test viewers stay untouched.
+Choose **L1 — precomputed** to load the full-data Lasso model and its
+validation-selected λ without fitting in the app. Both models use the same
+training/validation split. The **About the models** section summarizes their
+provenance and evaluation. L2 uses an analytical solve, while L1 uses
+scikit-learn's iterative `Lasso` solver offline. Recommendation scores are
+rankings, not probabilities.
 
 ## Viewer-level dataset splits
 
