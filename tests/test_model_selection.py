@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from scipy.sparse import csc_array
+from sparse_helpers import differing_entries
 
 from movie_demo.model import ItemLinearModel
 from movie_demo.model_selection import (
@@ -43,9 +44,9 @@ def test_validation_holdout_is_reproducible_and_complementary() -> None:
     assert first.inputs.nnz == 60
     assert first.inputs.nnz + first.targets.nnz == validation.nnz
     assert (first.inputs.multiply(first.targets)).nnz == 0
-    assert (first.inputs != repeated.inputs).nnz == 0
-    assert (first.targets != repeated.targets).nnz == 0
-    assert (first.inputs + first.targets != validation).nnz == 0
+    assert differing_entries(first.inputs, repeated.inputs) == 0
+    assert differing_entries(first.targets, repeated.targets) == 0
+    assert differing_entries(first.inputs + first.targets, validation) == 0
 
 
 def test_validation_holdout_requires_more_likes_than_inputs() -> None:
@@ -136,10 +137,23 @@ def test_select_regularization_supports_lasso_solver() -> None:
 def test_selection_is_reproducible() -> None:
     matrix = _structured_matrix()
     split = split_viewers(matrix, seed=5)
-    kwargs = dict(candidates=(1.0, 10.0), input_likes=2, k=3, seed=6)
 
-    first = select_regularization(split.train, split.validation, **kwargs)
-    repeated = select_regularization(split.train, split.validation, **kwargs)
+    first = select_regularization(
+        split.train,
+        split.validation,
+        candidates=(1.0, 10.0),
+        input_likes=2,
+        k=3,
+        seed=6,
+    )
+    repeated = select_regularization(
+        split.train,
+        split.validation,
+        candidates=(1.0, 10.0),
+        input_likes=2,
+        k=3,
+        seed=6,
+    )
 
     assert first.best_regularization == repeated.best_regularization
     assert first.scores == repeated.scores

@@ -29,6 +29,7 @@ dev = [
     "ruff>=0.17.1",
     "scikit-learn-stubs>=0.0.3",
     "scipy-stubs>=1.18.1.1",
+    "ty>=0.0.98",
 ]
 
 [tool.ruff]

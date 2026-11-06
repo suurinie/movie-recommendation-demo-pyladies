@@ -1,9 +1,11 @@
 import csv
 from collections.abc import Callable
 from pathlib import Path
+from typing import cast
 
 import pytest
-from scipy.sparse import load_npz
+from scipy.sparse import csc_array, load_npz
+from sparse_helpers import differing_entries
 
 from movie_demo.catalog import Catalog, load_catalog
 from movie_demo.dataset_io import save_generated_dataset
@@ -38,8 +40,8 @@ def test_saves_matrix_and_minimal_index_with_matching_ids(
 
     assert matrix_path == output / "interactions.npz"
     assert movies_path == output / "movies.csv"
-    restored = load_npz(matrix_path)
-    assert (restored != dataset.matrix).nnz == 0
+    restored = cast(csc_array, load_npz(matrix_path))
+    assert differing_entries(restored, dataset.matrix) == 0
     with movies_path.open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))
     assert list(rows[0]) == ["movie_id", "title", "director", "year"]

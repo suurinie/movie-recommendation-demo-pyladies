@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from scipy.sparse import csc_array
+from sparse_helpers import differing_entries
 
 from movie_demo.splitting import ViewerSplit, split_viewers
 
@@ -38,9 +39,14 @@ def test_splits_whole_viewers_into_disjoint_groups() -> None:
         ),
         np.arange(100),
     )
-    assert (split.train != interactions[:, split.train_viewer_ids]).nnz == 0
-    assert (split.validation != interactions[:, split.validation_viewer_ids]).nnz == 0
-    assert (split.test != interactions[:, split.test_viewer_ids]).nnz == 0
+    assert differing_entries(split.train, interactions[:, split.train_viewer_ids]) == 0
+    assert (
+        differing_entries(
+            split.validation, interactions[:, split.validation_viewer_ids]
+        )
+        == 0
+    )
+    assert differing_entries(split.test, interactions[:, split.test_viewer_ids]) == 0
 
 
 def test_split_is_reproducible_for_same_seed() -> None:
@@ -109,7 +115,7 @@ def test_invalid_fractions_rejected(
 @pytest.mark.parametrize("value", [True, "0.1"])
 def test_fraction_type_must_be_numeric(value: object) -> None:
     with pytest.raises(TypeError, match="validation_fraction must be a number"):
-        split_viewers(_matrix(), validation_fraction=value)  # type: ignore[arg-type]
+        split_viewers(_matrix(), validation_fraction=value)  # ty: ignore[invalid-argument-type]
 
 
 @pytest.mark.parametrize("seed", [-1, True, 1.5])

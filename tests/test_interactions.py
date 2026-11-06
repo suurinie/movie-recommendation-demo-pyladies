@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 from scipy.sparse import csc_array
+from sparse_helpers import differing_entries
 
 from movie_demo.catalog import Catalog, load_catalog
 from movie_demo.interactions import (
@@ -102,9 +103,9 @@ def test_seed_reproducibility_and_batch_independence(
     other_seed = generate_interactions(catalog, num_viewers=40, seed=82, batch_size=8)
 
     assert first.profiles == repeated.profiles
-    assert (first.matrix != repeated.matrix).nnz == 0
+    assert differing_entries(first.matrix, repeated.matrix) == 0
     assert first.profiles != other_seed.profiles
-    assert (first.matrix != other_seed.matrix).nnz > 0
+    assert differing_entries(first.matrix, other_seed.matrix) > 0
 
 
 def test_sampling_prefers_movies_matching_user_tastes(
@@ -152,7 +153,7 @@ def test_unknown_sampling_version_is_rejected(
     catalog = _interaction_catalog(write_catalog, movie_row)
 
     with pytest.raises(ValueError, match="Unknown sampling version"):
-        generate_interactions(catalog, num_viewers=2, sampling_version="v3")
+        generate_interactions(catalog, num_viewers=2, sampling_version="v3")  # ty: ignore[invalid-argument-type]
 
 
 def test_activity_larger_than_catalog_is_rejected(
