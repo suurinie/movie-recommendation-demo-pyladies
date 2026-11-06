@@ -92,9 +92,12 @@ def test_selects_candidate_by_validation_recall_and_reports_baseline() -> None:
 
     assert isinstance(result, ModelSelectionResult)
     assert result.metric == "recall_at_k"
-    assert result.best_regularization == max(
-        result.scores, key=lambda score: score.metrics.recall_at_k
-    ).regularization
+    assert (
+        result.best_regularization
+        == max(
+            result.scores, key=lambda score: score.metrics.recall_at_k
+        ).regularization
+    )
     assert result.best_regularization in candidates
     assert result.best_model.regularization == result.best_regularization
     assert len(result.scores) == len(candidates)
@@ -122,9 +125,12 @@ def test_select_regularization_supports_lasso_solver() -> None:
     )
 
     assert result.best_model.method == "lasso"
-    assert result.best_regularization == max(
-        result.scores, key=lambda score: score.metrics.recall_at_k
-    ).regularization
+    assert (
+        result.best_regularization
+        == max(
+            result.scores, key=lambda score: score.metrics.recall_at_k
+        ).regularization
+    )
 
 
 def test_selection_is_reproducible() -> None:

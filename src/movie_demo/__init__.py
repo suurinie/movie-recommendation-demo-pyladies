@@ -2,8 +2,9 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import cast
 
-from scipy.sparse import load_npz
+from scipy.sparse import csc_array, load_npz
 
 from movie_demo.catalog import CatalogError, load_catalog
 from movie_demo.dataset_io import save_generated_dataset
@@ -96,7 +97,7 @@ def main() -> None:
             print(json.dumps(catalog.summary(), indent=2))
             return
         if args.command == "select-lambda":
-            matrix = load_npz(args.matrix).tocsc()
+            matrix = cast(csc_array, load_npz(args.matrix)).tocsc()
             split = split_viewers(matrix, seed=args.split_seed)
             result = select_regularization(
                 split.train,

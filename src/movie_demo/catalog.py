@@ -4,6 +4,7 @@ import io
 from dataclasses import dataclass
 from pathlib import Path
 
+import numpy as np
 from scipy.sparse import csr_array
 
 REQUIRED_COLUMNS = (
@@ -81,7 +82,9 @@ def _features(labels: tuple[tuple[str, ...], ...]) -> FeatureMatrix:
             columns.append(indices[label])
             values.append(1.0 / len(group))
     weights = csr_array(
-        (values, (rows, columns)), shape=(len(labels), len(vocabulary)), dtype=float
+        (values, (rows, columns)),
+        shape=(len(labels), len(vocabulary)),
+        dtype=np.float64,
     )
     weights.sort_indices()
     return FeatureMatrix(vocabulary, weights)

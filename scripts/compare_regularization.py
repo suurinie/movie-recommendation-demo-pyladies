@@ -23,9 +23,7 @@ FULL_DATA_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-comparison-full.p
 FULL_DATA_DETAILS_OUTPUT = (
     PROJECT_ROOT / "slides" / "assets" / "l1-l2-signed-links-full.png"
 )
-FULL_DATA_WEIGHTS_OUTPUT = (
-    PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights-full.npz"
-)
+FULL_DATA_WEIGHTS_OUTPUT = PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights-full.npz"
 DEFAULT_L1_LAMBDAS = (1.0, 10.0, 100.0)
 
 
@@ -136,8 +134,7 @@ def _plot_matrices(
         ax=axes,
         orientation="horizontal",
         label=(
-            "Relative signed strength (each matrix scaled to its own "
-            "99.5th percentile)"
+            "Relative signed strength (each matrix scaled to its own 99.5th percentile)"
         ),
         shrink=0.7,
     )
@@ -214,9 +211,9 @@ def _plot_details(
     ):
         candidate_rows = np.flatnonzero((positive_counts > 0) & (negative_counts > 0))
         if len(candidate_rows):
-            negative_strength = np.abs(
-                np.minimum(l1_weights[candidate_rows], 0)
-            ).sum(axis=1)
+            negative_strength = np.abs(np.minimum(l1_weights[candidate_rows], 0)).sum(
+                axis=1
+            )
             target_id = int(candidate_rows[np.argmax(negative_strength)])
         else:
             target_id = int(np.argmax(negative_counts))
@@ -277,9 +274,7 @@ def main() -> None:
     parser.add_argument(
         "--l1-lambdas", type=float, nargs="+", default=DEFAULT_L1_LAMBDAS
     )
-    parser.add_argument(
-        "--l2-lambdas", type=float, nargs="+", default=DEFAULT_LAMBDAS
-    )
+    parser.add_argument("--l2-lambdas", type=float, nargs="+", default=DEFAULT_LAMBDAS)
     parser.add_argument(
         "--full-data",
         action="store_true",
