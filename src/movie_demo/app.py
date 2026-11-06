@@ -1,3 +1,17 @@
+"""Streamlit demo: train a movie recommender, then try it on your favorites.
+
+Run with ``streamlit run src/movie_demo/app.py``. Streamlit re-executes
+``main()`` from top to bottom on every click or widget change, so anything
+that must survive a rerun lives in ``st.session_state`` or a cache.
+
+Page flow:
+1. Pick a model: L2 (trained live here) or L1 (loaded from a precomputed file).
+2. Pick favorite movies and see the model's top ten unseen recommendations.
+
+The data is synthetic (generated, not real viewers). The modelling itself is in
+``model.py``; how a λ is chosen is in ``model_selection.py``.
+"""
+
 from collections.abc import Callable
 from pathlib import Path
 from typing import cast
@@ -26,7 +40,17 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data" / "synthetic" / "seed-42-50000-v2"
 MATRIX_PATH = DATA_DIR / "interactions.npz"
 MOVIES_PATH = DATA_DIR / "movies.csv"
+# Weights of the L1 (lasso) model, saved ahead of time by
+# scripts/compare_regularization.py because fitting lasso is too slow to do
+# interactively.
 L1_WEIGHTS_PATH = PROJECT_ROOT / "slides" / "assets" / "l1-l2-weights-full.npz"
+
+# Caching: Streamlit reruns this script on every interaction, so loading and
+# training are wrapped in caches. ``cache_data`` returns a copy per call (safe
+# for small, plain data). ``cache_resource`` shares one object across all
+# reruns and sessions (right for large matrices and models; it must not be
+# modified by callers). Arguments are plain strings/numbers so they hash into
+# a cache key; the same arguments return the cached result without recomputing.
 
 
 @st.cache_data
@@ -36,6 +60,7 @@ def _load_movies(path: str) -> tuple[MovieChoice, ...]:
 
 @st.cache_resource
 def _load_interactions(path: str) -> csc_array:
+    """Load the (movies, viewers) 0/1 like matrix saved as a SciPy .npz file."""
     interactions = cast(csc_array, load_npz(path))
     return interactions
 
@@ -44,6 +69,12 @@ def _load_interactions(path: str) -> csc_array:
 def _load_precomputed_l1(
     path: str,
 ) -> tuple[ItemLinearModel, float, float, int, int]:
+    """Load the saved L1 model and the facts recorded when it was trained.
+
+    Returns (model, λ, validation Recall@10, training viewer count,
+    validation viewer count). ``allow_pickle=False`` stops the file from
+    running arbitrary code on load.
+    """
     with np.load(path, allow_pickle=False) as saved_model:
         model = ItemLinearModel(
             weights=np.asarray(saved_model["l1_weights"], dtype=np.float64),
@@ -71,6 +102,15 @@ def _train_and_select(
     input_likes: int,
     cutoff: int,
 ) -> tuple[ModelSelectionResult, tuple[int, int, int]]:
+    """Fit one L2 model per candidate λ and pick the best on validation viewers.
+
+    Viewers are split into train / validation / test groups. Models are fitted
+    on train viewers only, and compared on validation viewers (each shows a few
+    likes, and the model must find the rest). Test viewers are not touched
+    here. Returns the selection result and the (train, validation, test)
+    viewer counts. The seeds make the split and evaluation reproducible, and
+    are part of the cache key.
+    """
     interactions = _load_interactions(path)
     split = split_viewers(interactions, seed=split_seed)
     result = select_regularization(
@@ -90,6 +130,12 @@ def _train_and_select(
 
 
 def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
+    """Return a function that turns a movie ID into its display label.
+
+    The multiselect stores integer IDs (stable, cheap to compare) and uses
+    this to show readable text, e.g. "Title (1999, Director)".
+    """
+
     def label(movie_id: int) -> str:
         return movies[movie_id].label
 
@@ -97,6 +143,7 @@ def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
 
 
 def _alphabetical_movie_ids(movies: tuple[MovieChoice, ...]) -> tuple[int, ...]:
+    """Return all movie IDs ordered by title, ignoring letter case."""
     return tuple(
         sorted(
             range(len(movies)),
@@ -110,6 +157,11 @@ def _lambda_label(value: float) -> str:
 
 
 def _comparison_rows(result: ModelSelectionResult) -> list[dict[str, str | float]]:
+    """Build table/chart rows: one per candidate λ, plus a popularity baseline.
+
+    The baseline recommends the most-liked movies to everyone, ignoring the
+    viewer. A model that does not beat it has learned nothing useful.
+    """
     rows = [
         {
             "Model": (
@@ -137,10 +189,22 @@ def _show_model_selection(
     movie_count: int,
     total_viewers: int,
 ) -> ModelSelectionResult | None:
+    """Render the L2 section. Return the selection result, or None if not run yet.
+
+    Results are kept in ``st.session_state`` so they survive the reruns that
+    every later click triggers; otherwise the models would retrain each time.
+    """
     _ = st.header("1. Train and compare models")
     _ = st.write(
-        "Train candidate L2 models and choose the one that finds the most "
-        "held-out likes in the validation viewers' top ten."
+        " ".join(
+            (
+                "Each candidate λ (lambda) sets how strongly large weights are",
+                "penalised: a low λ fits the training viewers tightly, a high λ",
+                "is more cautious. Each candidate model is trained, then tested",
+                "on validation viewers who reveal a few likes. The model whose",
+                "top ten contains the most of their hidden likes wins.",
+            )
+        )
     )
     _ = st.caption(
         " ".join(
@@ -233,8 +297,11 @@ def _show_model_selection(
     _ = st.caption(
         " ".join(
             (
-                "Recall@10 is the fraction of held-out likes found in the top ten.",
-                "The popularity baseline is included for comparison.",
+                "Recall@10: of the likes a viewer did not reveal, the fraction",
+                "that appear in their top ten recommendations (averaged over",
+                "validation viewers; 1.0 is perfect).",
+                "The popularity baseline recommends the same most-liked movies",
+                "to everyone, so beating it shows the model personalises.",
             )
         )
     )
@@ -242,6 +309,11 @@ def _show_model_selection(
 
 
 def _show_precomputed_l1(movie_count: int) -> tuple[ItemLinearModel, float] | None:
+    """Render the L1 section. Return (model, λ), or None if it cannot be used.
+
+    Fails soft with an on-page error instead of crashing the app, e.g. when
+    the file is missing or was built for a different movie catalog.
+    """
     _ = st.header("1. Use the precomputed L1 model")
     try:
         model, regularization, recall_at_10, training_viewers, validation_viewers = (
@@ -269,14 +341,23 @@ def _show_implementation_details() -> None:
     with st.expander("About the models"):
         _ = st.markdown(
             """
-The L2 option is fitted here and selected using validation Recall@10. The L1
-option loads a precomputed model trained on the same synthetic training data.
-The separate test viewers are not used to select either model.
+Both models are an item-to-item table: for each movie, a weight for how much
+liking every other movie should raise its score. A movie never predicts itself.
+
+- **L2 (ridge)** penalises the *square* of each weight. Weights end up small
+  but mostly non-zero. It is solved exactly and fitted live here.
+- **L1 (lasso)** penalises the *absolute value* of each weight. Many weights
+  become exactly zero, so each movie depends on only a few others. It is much
+  slower to fit, so a precomputed model is loaded.
+
+Both pick their λ using validation viewers. The separate test viewers are not
+used to choose either model. The data is synthetic.
 """
         )
 
 
 def main() -> None:
+    """Build the whole page. Streamlit calls this again on every interaction."""
     st.set_page_config(page_title="Movie favorites", page_icon="🎬")
     _ = st.title("Movie recommendations")
     _ = st.write("Select favorite movies in the picker below.")

@@ -1,3 +1,34 @@
+"""Item-to-item recommender: "viewers who liked A also tend to like B".
+
+The model is one square table of numbers, ``weights``, with a row and a column
+per movie. ``weights[i, j]`` says how much liking movie ``j`` should raise the
+score of movie ``i``. A viewer's score for every movie is that table multiplied
+by their likes (see ``ItemLinearModel.predict``).
+
+Training finds the table that best re-creates the known likes of the training
+viewers from each other's likes, with two rules:
+
+* A movie may not predict itself (the diagonal is zero). Otherwise the best
+  "prediction" for any liked movie is trivially itself, and nothing is learned.
+* Large weights are penalised by a strength ``regularization`` (written λ,
+  "lambda"). Without it the table memorises noise in the training viewers.
+  Higher λ gives smaller, more cautious weights; lower λ fits the training data
+  more tightly. The right value is chosen by trying several on held-out viewers
+  (see ``model_selection.py``).
+
+Three fitting methods share this shape and differ in the penalty and solver:
+
+* ``fit_analytical``: L2 (ridge) penalty, solved exactly in one step. This is
+  the default and the one the demo trains live.
+* ``fit_lasso``: L1 penalty, which pushes many weights to exactly zero.
+* ``fit_sgd``: L2 penalty like ``fit_analytical`` but solved approximately by
+  repeated small updates. Kept for comparison.
+
+Matrix convention used throughout: ``interactions`` has shape
+``(movies, viewers)`` and entry ``[i, v]`` is 1 if viewer ``v`` liked movie
+``i``, otherwise 0.
+"""
+
 from dataclasses import dataclass
 
 import numpy as np
@@ -8,19 +39,32 @@ from sklearn.linear_model import Lasso, SGDRegressor
 
 @dataclass(frozen=True)
 class ItemLinearModel:
-    """Zero-diagonal item-to-item predictor; rows predict movies from likes."""
+    """A trained movie-to-movie weight table plus how it was trained.
+
+    ``weights[i, j]`` is how much liking movie ``j`` raises the score of movie
+    ``i``. The diagonal is always zero. ``regularization`` (λ) and ``method``
+    only record how the weights were produced; ``predict`` does not use them.
+    """
 
     weights: np.ndarray
     regularization: float
     method: str
 
     def predict(self, liked: np.ndarray) -> np.ndarray:
-        """Score movies for one viewer's binary liked-movie vector."""
+        """Score every movie for one viewer.
+
+        ``liked`` is a vector with one entry per movie: 1 for movies the viewer
+        likes, 0 otherwise (this is not checked, only the length is). Returns
+        one score per movie. Scores are only meaningful for ranking: they are
+        not probabilities and can be negative.
+        """
         liked = np.asarray(liked)
         if liked.ndim != 1 or liked.shape[0] != self.weights.shape[1]:
             raise ValueError(
                 f"liked must be a vector of length {self.weights.shape[1]}."
             )
+        # Row i of the table dotted with the likes = the summed influence of
+        # everything the viewer likes on movie i.
         scores = self.weights @ liked
         # A liked movie is already known to the viewer, so it is not a
         # recommendation candidate. -inf guarantees it sorts below every unseen
@@ -40,66 +84,75 @@ def _validate_training_data(interactions: csc_array, regularization: float) -> N
         raise ValueError("regularization must be finite and positive.")
 
 
-# ---------------------------------------------------------------------------
-# ANALYTICAL APPROACH
-# Closed-form solution used by model selection and the Streamlit demo. It
-# computes the constrained ridge model directly, with one regularized solve.
-# ---------------------------------------------------------------------------
 def fit_analytical(
     interactions: csc_array, regularization: float = 100.0
 ) -> ItemLinearModel:
-    """Fit the exact zero-diagonal ridge solution using a movie Gram matrix.
+    """Fit the L2 (ridge) model exactly, in one matrix solve.
 
-    With H shaped (movies, viewers), the objective is
-    ||H - XH||_F^2 + lambda * ||X||_F^2, subject to diag(X) = 0.
-    Each row of X is therefore a ridge regression that predicts one movie's
-    likes across viewers from the likes of all other movies.
+    ``interactions`` is the (movies, viewers) 0/1 matrix. ``regularization`` is
+    λ, the penalty strength; it must be finite and positive. Memory use is
+    O(movies²) because a dense movie-by-movie matrix is built, so this suits
+    catalogs of thousands of movies, not millions. The number of viewers only
+    affects the cost of building that matrix, not the solve.
+
+    Formally, with H the interactions matrix and X the weight table, this
+    minimises ``||H - X·H||² + λ·||X||²`` (sums of squares over all entries)
+    subject to ``diag(X) = 0``. In words: each row of X is an independent ridge
+    regression that predicts one movie's likes across all viewers from the
+    likes of every *other* movie.
+
+    Instead of running one regression per movie, this uses a closed-form
+    shortcut (derived in the comments below) that gets every row from a single
+    matrix inverse.
     """
     _validate_training_data(interactions, regularization)
     floating_interactions = interactions.astype(np.float64)
-    # G[i, j] is the dot product of the two movies' viewer-interaction rows.
-    # The product is movie-by-movie, so the solve scales with catalog size,
-    # not with the number of viewers.
+    # Gram matrix G: G[i, j] counts the viewers who liked both movie i and
+    # movie j (the diagonal is each movie's own like count). Its size is
+    # movies x movies regardless of how many viewers there are.
     gram = (floating_interactions @ floating_interactions.T).toarray()
-    # Ridge regularization adds lambda to each diagonal entry of G, making the
-    # system positive definite even when movie rows are correlated or sparse.
-    system = gram
-    diagonal_indices = np.diag_indices_from(system)
-    system[diagonal_indices] += regularization
-    # Let P = (G + lambda I)^-1. For a fixed target movie i, partition
-    # G + lambda I by putting i first:
-    #     [ a    b.T ]
-    #     [ b     C  ]
-    # Here C = G[-i, -i] + lambda I and b = G[-i, i]. The constrained ridge
-    # normal equations for predicting movie i from all other movies are
-    # C @ beta = b, so beta = C^-1 @ b.
+    # Ridge: add λ to the diagonal of G (modifying `gram` in place). This is
+    # what makes the matrix safely invertible even when movies are strongly
+    # correlated or have few likes, and it is the "penalty on large weights".
+    gram[np.diag_indices_from(gram)] += regularization
+
+    # Why a single inverse is enough
+    # ------------------------------
+    # Let P be the inverse of (G + λI). Fix one target movie i. Predicting it
+    # from all the other movies is an ordinary ridge regression whose solution
+    # is beta = C^-1 @ b, where C is (G + λI) with row/column i removed and b is
+    # column i of G with entry i removed. That is the "no self-prediction"
+    # constraint: movie i is simply left out of its own inputs.
     #
-    # The block-inverse identity gives P[-i, i] = -C^-1 @ b * P[i, i].
-    # Therefore beta[j] = -P[j, i] / P[i, i] = -P[i, j] / P[i, i] for j != i,
-    # where the last equality uses symmetry. These coefficients solve the
-    # problem with x[i, i] constrained to zero; they are not an unconstrained
-    # fit followed by truncation. Solve against the identity to obtain P
-    # without explicitly inverting the regularized Gram matrix.
+    # A standard identity for inverting a matrix in blocks shows that this same
+    # beta can be read straight off P:  beta[j] = -P[i, j] / P[i, i]  (j != i).
+    # So dividing each row of P by minus its diagonal entry gives every
+    # per-movie regression at once. This is exact; it is NOT an unconstrained
+    # fit with the diagonal zeroed afterwards.
+    #
+    # We obtain P by solving (G + λI) @ P = I rather than calling an explicit
+    # inverse routine, which is more numerically stable. ``assume_a="pos"``
+    # tells SciPy the matrix is symmetric positive definite (true for G + λI
+    # with λ > 0), allowing a faster Cholesky-based solver.
     regularized_gram_inverse = solve(
-        system,
-        np.eye(system.shape[0]),
+        gram,
+        np.eye(gram.shape[0]),
         assume_a="pos",
         check_finite=False,
     )
     diagonal = np.diag(regularized_gram_inverse)
+    # Safety net: for a positive-definite matrix the diagonal of the inverse is
+    # positive. Anything else means the solve broke down numerically.
     if np.any(diagonal <= 0) or not np.all(np.isfinite(diagonal)):
         raise ArithmeticError("The regularized Gram matrix is not positive definite.")
     weights = -regularized_gram_inverse / diagonal[:, np.newaxis]
-    # The ratio above gives -1 on the diagonal, but those entries are only
-    # algebraic intermediates, not fitted self-prediction coefficients.
+    # The division above puts -1 on the diagonal. Those values are a
+    # by-product of the formula, not real weights, so replace them with the
+    # required zero ("a movie does not predict itself").
     np.fill_diagonal(weights, 0.0)
     return ItemLinearModel(weights, float(regularization), "analytical")
 
 
-# ---------------------------------------------------------------------------
-# LASSO APPROACH
-# Coordinate descent fits one sparse regression per target movie.
-# ---------------------------------------------------------------------------
 def fit_lasso(
     interactions: csc_array,
     regularization: float = 100.0,
@@ -107,7 +160,21 @@ def fit_lasso(
     max_iter: int = 1_000,
     tolerance: float = 1e-4,
 ) -> ItemLinearModel:
-    """Fit a zero-diagonal L1 model with sklearn's coordinate descent solver."""
+    """Fit the L1 (lasso) model: one sparse regression per movie.
+
+    Same inputs and meaning of ``regularization`` (λ) as ``fit_analytical``,
+    but the penalty is the sum of absolute weights instead of squared weights.
+    That makes many weights exactly zero, so each movie ends up depending on
+    only a few other movies, and the resulting table is easier to inspect.
+    There is no closed form, so each movie is fitted iteratively by
+    scikit-learn. This is much slower than ``fit_analytical``: one regression
+    per movie, each over all other movies.
+
+    ``max_iter`` caps the solver's passes per movie and ``tolerance`` is how
+    small the improvement must get before it stops. If it hits ``max_iter``
+    first, scikit-learn emits a ConvergenceWarning and the weights are only
+    approximate.
+    """
     _validate_training_data(interactions, regularization)
     if type(max_iter) is not int:
         raise TypeError("max_iter must be an integer.")
@@ -119,13 +186,20 @@ def fit_lasso(
         raise ValueError("tolerance must be finite and positive.")
 
     num_movies, num_viewers = interactions.shape
+    # scikit-learn wants one row per sample. Here a sample is a viewer and the
+    # features are movies, so transpose to (viewers, movies).
     viewer_features = csr_matrix(interactions.T, dtype=np.float64)
     targets = interactions.astype(np.float64)
     weights = np.zeros((num_movies, num_movies), dtype=np.float64)
-    # Lasso minimizes mean_squared_error / 2 + alpha * ||weights||_1.
-    # Scale alpha to match the sum-of-squares objective used by fit_analytical.
+    # scikit-learn's Lasso minimises
+    #     (1 / (2n)) * sum_of_squared_errors + alpha * sum(|w|),  n = viewers.
+    # We want sum_of_squared_errors + λ * sum(|w|), the form that
+    # reconstruction_loss reports. Multiplying scikit-learn's objective by 2n
+    # gives sum_of_squared_errors + 2n * alpha * sum(|w|), so alpha = λ / (2n).
     alpha = regularization / (2 * num_viewers)
     for movie_id in range(num_movies):
+        # Use every movie except this one as input. Leaving it out is what
+        # keeps the diagonal of the weight table at zero.
         feature_ids = np.concatenate(
             (np.arange(movie_id), np.arange(movie_id + 1, num_movies))
         )
@@ -145,11 +219,6 @@ def fit_lasso(
     return ItemLinearModel(weights, float(regularization), "lasso")
 
 
-# ---------------------------------------------------------------------------
-# SGD APPROACH (separate, iterative alternative)
-# This fits one approximate regression per movie using sklearn's optimizer.
-# It is useful for comparing approaches, but is not used by model selection.
-# ---------------------------------------------------------------------------
 def fit_sgd(
     interactions: csc_array,
     regularization: float = 100.0,
@@ -158,7 +227,16 @@ def fit_sgd(
     tolerance: float = 1e-3,
     seed: int = 42,
 ) -> ItemLinearModel:
-    """Fit one sklearn SGDRegressor per target movie, excluding self-input."""
+    """Fit the L2 model approximately with stochastic gradient descent (SGD).
+
+    Targets the same objective as ``fit_analytical`` (L2 penalty, zero
+    diagonal), but finds it by repeated small updates instead of an exact
+    solve, one regression per movie. The result is close to, not identical
+    to, the exact answer, and it is slower. It exists to show how an iterative
+    solver compares with the closed form. ``seed`` makes runs reproducible;
+    each movie uses ``seed + movie_id`` so movies get different shuffles.
+    ``tolerance`` may be 0 here (never stop early before ``max_iter``).
+    """
     _validate_training_data(interactions, regularization)
     if type(max_iter) is not int:
         raise TypeError("max_iter must be an integer.")
@@ -178,8 +256,11 @@ def fit_sgd(
     viewer_features = csr_matrix(interactions.T, dtype=np.float64)
     targets = interactions.astype(np.float64)
     weights = np.zeros((num_movies, num_movies), dtype=np.float64)
-    # SGDRegressor averages loss over samples. Scale alpha by viewer count so
-    # regularization is on the scale of the summed-squares objective above.
+    # scikit-learn's SGDRegressor (squared_error, l2) minimises
+    #     (1 / (2n)) * sum_of_squared_errors + alpha * (1/2) * sum(w^2),
+    # with n = viewers. Multiplying by 2n gives
+    #     sum_of_squared_errors + n * alpha * sum(w^2),
+    # which equals the ridge objective in fit_analytical when alpha = λ / n.
     alpha = regularization / num_viewers
     for movie_id in range(num_movies):
         # Fit this target movie using every other movie as a feature. Omitting
@@ -211,7 +292,16 @@ def reconstruction_loss(
     *,
     batch_size: int = 256,
 ) -> float:
-    """Return the model's regularized reconstruction objective in bounded memory."""
+    """Return the training objective: reconstruction error plus weight penalty.
+
+    Reconstruction error is how far ``weights @ likes`` is from the real
+    likes, summed squared over all movies and viewers. The penalty is
+    ``λ * sum(|w|)`` for lasso models and ``λ * sum(w^2)`` for the others
+    (analytical and SGD are both L2). Lower is better, and the value is
+    comparable across models only if they use the same λ and penalty type.
+    Viewers are processed in batches of ``batch_size`` so the dense
+    (movies, batch) block stays small.
+    """
     if interactions.shape[0] != model.weights.shape[1]:
         raise ValueError("Model and interaction movie dimensions must match.")
     if type(batch_size) is not int:
@@ -229,7 +319,8 @@ def reconstruction_loss(
         residual = target - model.weights @ target
         residual_norm = float(np.linalg.norm(residual))
         squared_error += residual_norm**2
-    # The model penalty is independent of viewer batching, so add it once.
+    # The penalty depends only on the weights, not on the viewers, so add it
+    # once rather than per batch. The penalty type follows the method.
     if model.method == "lasso":
         penalty = model.regularization * float(np.abs(model.weights).sum())
     else:
