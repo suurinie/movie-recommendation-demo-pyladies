@@ -254,12 +254,14 @@
 \end{frame}
 
 \begin{frame}{Summary}
-  \begin{itemize}
-    \item We formulated the movie recommendation problem as a constrained least squares problem.
-    \item L2 regularization controls the magnitude of connections and has a closed-form solution.
-    \item L1 regularization encourages sparsity but requires iterative optimization.
-    \item Proper train-validation-test split is crucial for selecting the regularization parameter $\lambda$.
-  \end{itemize}
+  \begin{enumerate}
+    \item A recommender can be one matrix learned from likes,
+      computed in a single solve.
+    \item Don't trust connections built on little evidence:
+      that's what $\lambda$ is for.
+    \item Choose on validation, check once on test, and compare against
+      baselines: random, popularity, and a perfect model.
+  \end{enumerate}
 \end{frame}
 
 \begin{frame}[fragile]{Try it yourself}
