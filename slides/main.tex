@@ -135,51 +135,57 @@
 
 \begin{frame}{Choosing $\lambda$ with Recall@10}
   \begin{itemize}
-    \item Fit each candidate $\lambda$ using training viewers.
-    \item For each validation viewer, use five likes as input; hold out the rest.
-    \item Recommend ten movies and count the held-out likes they contain.
+    \item Fit one model per candidate $\lambda$, using the training viewers.
+    \item For each validation viewer, show five likes and hide the rest.
+    \item Recommend ten movies and count how many hidden likes they contain.
   \end{itemize}
 
   \[
     \mathrm{Recall@10} =
-    \frac{\text{held-out likes in top ten}}{\text{all held-out likes}}
+    \frac{\text{hidden likes in the top ten}}{\text{all hidden likes}}
   \]
 
-   \begin{itemize}
-    \item Pick the highest average Recall@10 across validation viewers.
+  \begin{itemize}
+    \item Pick the $\lambda$ with the highest average Recall@10.
   \end{itemize}
-\begin{block}{Critical point}
-    Keep test viewers out of selection; use them only for the final check.
-\end{block}
+\end{frame}
 
-Why?
-\begin{itemize}
-  \item Performance test would be too optimistic.
-  \item You'd be in bad trouble when production starts.
-\end{itemize}
+\begin{frame}{Keep the test viewers out}
+  \begin{itemize}
+    \item \textbf{Training} viewers: fit the models.
+    \item \textbf{Validation} viewers: choose $\lambda$.
+    \item \textbf{Test} viewers: a final check only, after everything is decided.
+  \end{itemize}
 
+  \vspace{1em}
+  Why? If the test viewers help choose $\lambda$, the test score is too
+  optimistic, and you only find out in production.
 \end{frame}
 
 \begin{frame}{Is 0.026 good?}
   \begin{center}
     \begin{tabular}{lccc}
-      Recommender & Validation & Test & vs.\ random \\
+      Recommender & \textbf{Validation} & \textbf{Test} & vs.\ random \\
       \hline
       Random 10 movies & $\approx 0.010$ & $\approx 0.010$ & $1\times$ \\
       Popularity (same list for everyone) & $0.019$ & $0.018$ & $1.9\times$ \\
       L1, $\lambda = 10$ & $0.023$ & $0.023$ & $2.3\times$ \\
       L2, $\lambda = 10{,}000$ & $0.026$ & $0.025$ & $2.6\times$ \\
+      \hline
+      Perfect model (knows true tastes) & $0.065$ & $0.066$ & $6.5\times$ \\
     \end{tabular}
 
     \footnotesize Recall@10. Test viewers were scored once, after $\lambda$ was chosen.
   \end{center}
+\end{frame}
 
+\begin{frame}{What the numbers mean}
   \begin{itemize}
     \item L2 finds about 35\% more hidden likes than popularity.
     \item At volume this is money: e.g.\ 10 million top-ten lists a day
       $\Rightarrow$ $\sim$35\% more successful recommendations, for one matrix solve.
-    \item The ceiling is low by design: about 20 likes out of 1000 movies, partly at random.
-      Low absolute numbers are normal for recommenders.
+    \item Even a perfect model that knows each viewer's true taste scores only 0.065:
+      which 20 movies someone happened to like is largely luck.
   \end{itemize}
 \end{frame}
 
