@@ -47,8 +47,10 @@ movies with more genres or actors do not automatically receive larger scores.
 Empty feature rows remain zero. Movie IDs are tied to the source hash, not
 intended to stay unchanged if the source is reordered.
 
-The repository's software license does not establish redistribution rights
-for the externally sourced CSV.
+The source CSV is the Kaggle dataset
+[IMDB Movies Dataset: Top 1000 movies and TV shows](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows),
+published there under CC0. It is not committed to this repository; download it
+from Kaggle to regenerate data. The repository's Unlicense covers the code.
 
 ## Synthetic viewer profiles
 

@@ -56,6 +56,16 @@ not the catalog's genres, directors, or actors.
 For data generation, command-line usage, model details, and development
 instructions, see the [author and developer guide](./AUTHORING.md).
 
+## License
+
+The code is released into the public domain under the [Unlicense](./LICENSE).
+
+The movie list (titles, directors, years) comes from the Kaggle dataset
+[IMDB Movies Dataset: Top 1000 movies and TV shows](https://www.kaggle.com/datasets/harshitshankhdhar/imdb-dataset-of-top-1000-movies-and-tv-shows),
+published there under CC0 (public domain). The data was originally collected
+from IMDb. The synthetic likes were generated from that dataset's genres, cast
+and vote counts.
+
 ## Other ways to install
 
 ### Install uv
