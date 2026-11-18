@@ -413,7 +413,7 @@ def main() -> None:
     _ = st.title("Movie recommendations")
     _ = st.write("Select favorite movies in the picker below.")
     _ = st.caption(
-        "Experiment dataset: sampler v2 — raw vote counts drive 10% exploration."
+        "The viewers are synthetic, generated from movie genres, directors and actors."
     )
     if not MATRIX_PATH.is_file() or not MOVIES_PATH.is_file():
         _ = st.error(f"Demo data missing from {DATA_DIR}.")
