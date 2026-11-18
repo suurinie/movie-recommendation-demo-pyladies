@@ -12,6 +12,7 @@ from movie_demo.model_selection import (
     ModelSelectionResult,
     RankingMetrics,
     ValidationHoldout,
+    evaluate_on_test,
     evaluate_ranking,
     make_validation_holdout,
     select_regularization,
@@ -188,3 +189,28 @@ def test_no_validation_viewers_rejected() -> None:
     matrix = _structured_matrix()
     with pytest.raises(ValueError, match="at least one viewer"):
         make_validation_holdout(matrix[:, :0])
+
+
+def test_evaluate_on_test_scores_model_and_popularity_on_same_holdout() -> None:
+    split = split_viewers(_structured_matrix(), seed=3)
+    result = select_regularization(
+        split.train, split.validation, candidates=(1.0, 10.0), input_likes=1, k=2
+    )
+
+    scores = evaluate_on_test(
+        result.best_model, split.train, split.test, input_likes=1, k=2
+    )
+    holdout = make_validation_holdout(split.test, input_likes=1)
+
+    assert scores.model_metrics == evaluate_ranking(result.best_model, holdout, k=2)
+    assert scores.model_metrics.viewers == split.test.shape[1]
+    assert scores.popularity_metrics.viewers == split.test.shape[1]
+    assert scores.popularity_metrics.target_likes == scores.model_metrics.target_likes
+
+
+def test_evaluate_on_test_rejects_mismatched_movies() -> None:
+    split = split_viewers(_structured_matrix(), seed=3)
+    model = ItemLinearModel(np.zeros((8, 8)), 1.0, "analytical")
+
+    with pytest.raises(ValueError, match="movie dimensions"):
+        _ = evaluate_on_test(model, split.train, split.test[:7, :])

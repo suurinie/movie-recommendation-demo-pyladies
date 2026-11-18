@@ -255,3 +255,38 @@ def select_regularization(
         scores=tuple(scores),
         popularity_metrics=popularity_metrics,
     )
+
+
+@dataclass(frozen=True)
+class FinalTestScores:
+    """Test-viewer metrics for a chosen model and the popularity baseline."""
+
+    model_metrics: RankingMetrics
+    popularity_metrics: RankingMetrics
+
+
+def evaluate_on_test(
+    model: ItemLinearModel,
+    training: csc_array,
+    test: csc_array,
+    *,
+    input_likes: int = DEFAULT_INPUT_LIKES,
+    k: int = DEFAULT_CUTOFF,
+    seed: int = DEFAULT_EVALUATION_SEED,
+    batch_size: int = DEFAULT_EVALUATION_BATCH_SIZE,
+) -> FinalTestScores:
+    """Final check: score an already-chosen model on untouched test viewers.
+
+    Call this only after λ has been selected on validation viewers. The test
+    viewers are held out the same way (a few likes shown, the rest hidden),
+    and the popularity baseline is scored on the same holdout for comparison.
+    """
+    if training.shape[0] != test.shape[0]:
+        raise ValueError("Training and test movie dimensions must match.")
+    holdout = make_validation_holdout(test, input_likes=input_likes, seed=seed)
+    return FinalTestScores(
+        model_metrics=evaluate_ranking(model, holdout, k=k, batch_size=batch_size),
+        popularity_metrics=evaluate_ranking(
+            _popularity_model(training), holdout, k=k, batch_size=batch_size
+        ),
+    )

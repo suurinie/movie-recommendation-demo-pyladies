@@ -31,7 +31,9 @@ from movie_demo.model_selection import (
     DEFAULT_EVALUATION_SEED,
     DEFAULT_INPUT_LIKES,
     DEFAULT_LAMBDAS,
+    FinalTestScores,
     ModelSelectionResult,
+    evaluate_on_test,
     select_regularization,
 )
 from movie_demo.splitting import DEFAULT_SPLIT_SEED, split_viewers
@@ -68,12 +70,16 @@ def _load_interactions(path: str) -> csc_array:
 @st.cache_resource
 def _load_precomputed_l1(
     path: str,
-) -> tuple[ItemLinearModel, float, float, int, int]:
+    matrix_path: str,
+    split_seed: int,
+) -> tuple[ItemLinearModel, float, float, int, int, FinalTestScores]:
     """Load the saved L1 model and the facts recorded when it was trained.
 
     Returns (model, λ, validation Recall@10, training viewer count,
-    validation viewer count). ``allow_pickle=False`` stops the file from
-    running arbitrary code on load.
+    validation viewer count, test scores). The test scores are computed here,
+    on the same split the model was trained with, so they always match the
+    saved weights. ``allow_pickle=False`` stops the file from running
+    arbitrary code on load.
     """
     with np.load(path, allow_pickle=False) as saved_model:
         model = ItemLinearModel(
@@ -84,12 +90,15 @@ def _load_precomputed_l1(
         recall_at_10 = float(saved_model["l1_validation_recall_at_10"])
         training_viewers = int(saved_model["training_viewers"])
         validation_viewers = int(saved_model["validation_viewers"])
+    split = split_viewers(_load_interactions(matrix_path), seed=split_seed)
+    test_scores = evaluate_on_test(model, split.train, split.test)
     return (
         model,
         model.regularization,
         recall_at_10,
         training_viewers,
         validation_viewers,
+        test_scores,
     )
 
 
@@ -101,14 +110,15 @@ def _train_and_select(
     evaluation_seed: int,
     input_likes: int,
     cutoff: int,
-) -> tuple[ModelSelectionResult, tuple[int, int, int]]:
+) -> tuple[ModelSelectionResult, tuple[int, int, int], FinalTestScores]:
     """Fit one L2 model per candidate λ and pick the best on validation viewers.
 
     Viewers are split into train / validation / test groups. Models are fitted
     on train viewers only, and compared on validation viewers (each shows a few
-    likes, and the model must find the rest). Test viewers are not touched
-    here. Returns the selection result and the (train, validation, test)
-    viewer counts. The seeds make the split and evaluation reproducible, and
+    likes, and the model must find the rest). Only after λ is chosen is the
+    winning model scored once on the test viewers, as a final check. Returns
+    the selection result, the (train, validation, test) viewer counts and the
+    test scores. The seeds make the split and evaluation reproducible, and
     are part of the cache key.
     """
     interactions = _load_interactions(path)
@@ -126,7 +136,15 @@ def _train_and_select(
         split.validation.shape[1],
         split.test.shape[1],
     )
-    return result, counts
+    test_scores = evaluate_on_test(
+        result.best_model,
+        split.train,
+        split.test,
+        input_likes=input_likes,
+        k=cutoff,
+        seed=evaluation_seed,
+    )
+    return result, counts, test_scores
 
 
 def _movie_id_labeler(movies: tuple[MovieChoice, ...]) -> Callable[[int], str]:
@@ -185,6 +203,23 @@ def _comparison_rows(result: ModelSelectionResult) -> list[dict[str, str | float
     return rows
 
 
+def _show_test_scores(test_scores: FinalTestScores) -> None:
+    """Render the final check on test viewers, next to the popularity baseline."""
+    model_recall = test_scores.model_metrics.recall_at_k
+    popularity_recall = test_scores.popularity_metrics.recall_at_k
+    test_col, popularity_col = st.columns(2)
+    _ = test_col.metric(
+        "Test Recall@10 (final check)",
+        f"{model_recall:.4f}",
+        delta=f"{model_recall - popularity_recall:+.4f} vs popularity",
+    )
+    _ = popularity_col.metric("Popularity baseline, test", f"{popularity_recall:.4f}")
+    _ = st.caption(
+        f"Measured once on {test_scores.model_metrics.viewers:,} test viewers "
+        "after λ was chosen; never used for training or selection."
+    )
+
+
 def _show_model_selection(
     movie_count: int,
     total_viewers: int,
@@ -236,7 +271,7 @@ def _show_model_selection(
                 f"Fitting {len(selected_candidates)} models and evaluating "
                 + "validation recommendations..."
             ):
-                result, viewer_counts = _train_and_select(
+                result, viewer_counts, test_scores = _train_and_select(
                     str(MATRIX_PATH),
                     selected_candidates,
                     DEFAULT_SPLIT_SEED,
@@ -249,6 +284,7 @@ def _show_model_selection(
             return None
         st.session_state["selection_result"] = result
         st.session_state["selection_viewer_counts"] = viewer_counts
+        st.session_state["selection_test_scores"] = test_scores
 
     result = cast(ModelSelectionResult | None, st.session_state.get("selection_result"))
     if result is None:
@@ -285,6 +321,12 @@ def _show_model_selection(
         f"{train_count:,} / {validation_count:,} / {test_count:,}",
     )
 
+    test_scores = cast(
+        FinalTestScores | None, st.session_state.get("selection_test_scores")
+    )
+    if test_scores is not None:
+        _show_test_scores(test_scores)
+
     score_rows = _comparison_rows(result)
     _ = st.dataframe(  # pyright: ignore[reportUnknownMemberType]
         score_rows, hide_index=True, width="stretch"
@@ -316,8 +358,15 @@ def _show_precomputed_l1(movie_count: int) -> tuple[ItemLinearModel, float] | No
     """
     _ = st.header("1. Use the precomputed L1 model")
     try:
-        model, regularization, recall_at_10, training_viewers, validation_viewers = (
-            _load_precomputed_l1(str(L1_WEIGHTS_PATH))
+        (
+            model,
+            regularization,
+            recall_at_10,
+            training_viewers,
+            validation_viewers,
+            test_scores,
+        ) = _load_precomputed_l1(
+            str(L1_WEIGHTS_PATH), str(MATRIX_PATH), DEFAULT_SPLIT_SEED
         )
     except (OSError, KeyError, ValueError) as exc:
         _ = st.error(f"Could not load the precomputed L1 model: {exc}")
@@ -334,6 +383,7 @@ def _show_precomputed_l1(movie_count: int) -> tuple[ItemLinearModel, float] | No
         f"Loaded precomputed weights fitted on {training_viewers:,} viewers; "
         f"λ was selected using {validation_viewers:,} validation viewers."
     )
+    _show_test_scores(test_scores)
     return model, regularization
 
 
@@ -351,7 +401,8 @@ liking every other movie should raise its score. A movie never predicts itself.
   slower to fit, so a precomputed model is loaded.
 
 Both pick their λ using validation viewers. The separate test viewers are not
-used to choose either model. The data is synthetic.
+used to choose either model; they are scored once, afterwards, as a final
+check. The data is synthetic.
 """
         )
 
