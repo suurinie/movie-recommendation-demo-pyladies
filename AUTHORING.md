@@ -156,7 +156,8 @@ x on their chips.
 
 Choose **L2 — train and compare** to fit analytical candidates on the 40,000
 training viewers, select λ using the 5,000 validation viewers, and compare
-Recall@10 with a popularity baseline. The 5,000 test viewers stay untouched.
+Recall@10 with a popularity baseline. The 5,000 test viewers are not used for
+selection; they are scored once, afterwards, as a final check.
 Choose **L1 — precomputed** to load the full-data Lasso model and its
 validation-selected λ without fitting in the app. Both models use the same
 training/validation split. The **About the models** section summarizes their

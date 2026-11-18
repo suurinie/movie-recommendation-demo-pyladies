@@ -17,9 +17,9 @@ uv run streamlit run src/movie_demo/app.py
 ```
 
 Open the local URL printed in the terminal. The demo uses the included
-sampler v2 synthetic dataset; you do not need to download a movie catalog or
-generate data. This experiment uses raw catalog vote counts for 10% of the
-sampling probability, instead of the log-compressed counts used by v1.
+dataset, so you do not need to download a movie catalog or generate data. The
+viewers are synthetic, generated from movie genres, directors and actors; see
+the [author and developer guide](./AUTHORING.md) for details.
 
 ## Try the demo
 
@@ -32,10 +32,11 @@ sampling probability, instead of the log-compressed counts used by v1.
    **Your favorites** picker.
 4. Explore the recommendations. They are ranked suggestions, not probabilities.
 
-L2 training uses 40,000 synthetic training viewers, selects λ with 5,000
-validation viewers, and leaves 5,000 test viewers untouched. The precomputed L1
-model was fitted on the same training split and selected using the same
-validation split. Neither model uses the test viewers for selection.
+L2 training uses 40,000 synthetic training viewers and selects λ with 5,000
+validation viewers. The precomputed L1 model was fitted on the same training
+split and selected using the same validation split. Neither model uses the
+5,000 test viewers for selection; they are scored once, after selection, as a
+final check.
 
 The **About the models** section summarizes model provenance and evaluation.
 Recommendations use movie-to-movie relationships learned from sparse likes,
