@@ -1,4 +1,5 @@
 import argparse
+import textwrap
 from pathlib import Path
 
 import matplotlib
@@ -248,7 +249,7 @@ def _plot_details(
         color="#E1812C",
         label="L1",
     )
-    labels = [movies[movie_id].title[:28] for movie_id in connection_ids]
+    labels = [textwrap.fill(movies[movie_id].title, 24) for movie_id in connection_ids]
     connection_axis.set_yticks(y_positions, labels)
     connection_axis.invert_yaxis()
     connection_axis.axvline(0, color="#555555", linewidth=0.8)

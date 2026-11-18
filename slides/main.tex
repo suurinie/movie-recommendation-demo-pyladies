@@ -2,6 +2,17 @@
 
 \usepackage{mathtools}
 \usepackage{qrcode}
+\usepackage{tikz}
+
+% A small note pinned to the same spot at the bottom of every slide.
+\newcommand{\slidenote}[1]{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=south west, inner sep=0pt, text width=0.9\paperwidth,
+          font=\footnotesize]
+      at ([xshift=0.05\paperwidth, yshift=0.06\paperheight]current page.south west)
+      {#1};
+  \end{tikzpicture}%
+}
 
 \usetheme{default}
 \setbeamertemplate{navigation symbols}{}
@@ -28,9 +39,8 @@
     \item Compare L2 and L1 regularization, then try recommendations in Streamlit.
   \end{itemize}
 
-  \vfill
-  \footnotesize Synthetic preferences make this a teaching example, not evidence
-  of real-world recommendation quality.
+  \slidenote{Synthetic preferences make this a teaching example, not evidence
+  of real-world recommendation quality.}
 \end{frame}
 
 \begin{frame}{Starting from your favorites}
@@ -46,7 +56,7 @@
     \item $v_i = 1$: movie $i$ is a favorite; $v_i = 0$ otherwise.
   \end{itemize}
 
-  \small Zero means unknown, not disliked.
+  \slidenote{Zero means unknown, not disliked.}
 \end{frame}
 
 \begin{frame}{What to do with your sparse vector?}
@@ -91,7 +101,7 @@
     \item Forbid self-prediction: $\operatorname{diag}(X) = 0$.
   \end{itemize}
 
-  \small $M$: movies \qquad $N$: viewers
+  \slidenote{$M$: movies \qquad $N$: viewers}
 \end{frame}
 
 \begin{frame}{The optimization problem}
@@ -106,7 +116,7 @@
 \end{itemize}
 
 \vspace{1em}
-\small The Frobenius norm measures the sum of squared differences between the predicted and actual likes.
+\slidenote{The Frobenius norm measures the sum of squared differences between the predicted and actual likes.}
 \end{frame}
 
 \begin{frame}{Why keep movie connections in check?}
@@ -196,7 +206,7 @@
     \item It has a closed-form solution for each $\lambda$ using standard linear algebra techniques.
   \end{itemize}
 
-  \small Sketch of proof: build the unconstrained Lagrangian problem and differentiate to get a 1st degree problem.
+  \slidenote{Sketch of proof: build the unconstrained Lagrangian problem and differentiate to get a 1st degree problem.}
 \end{frame}
 
 \begin{frame}{Sparse solutions}
@@ -212,17 +222,8 @@
     \qquad \text{subject to} \quad X_{ii} = 0
   \]
 
-  \small In the demo, L2 is trained live; L1 is precomputed because fitting it takes too long.
+  \slidenote{In the demo, L2 is trained live; L1 is precomputed because fitting it takes too long.}
 
-\end{frame}
-
-\begin{frame}[plain]
-  \centering
-  \includegraphics[
-    width=0.96\textwidth,
-    height=0.96\textheight,
-    keepaspectratio
-  ]{slides/assets/l1-l2-comparison-full.png}
 \end{frame}
 
 \begin{frame}[plain]
@@ -232,6 +233,15 @@
     height=0.96\textheight,
     keepaspectratio
   ]{slides/assets/l1-l2-signed-links-full.png}
+\end{frame}
+
+\begin{frame}[plain]
+  \centering
+  \includegraphics[
+    width=0.96\textwidth,
+    height=0.96\textheight,
+    keepaspectratio
+  ]{slides/assets/l1-l2-comparison-full.png}
 \end{frame}
 
 \begin{frame}{Summary}
