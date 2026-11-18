@@ -108,19 +108,26 @@
 \small The Frobenius norm measures the sum of squared differences between the predicted and actual likes.
 \end{frame}
 
-\begin{frame}{L2: keeping movie connections in check}
+\begin{frame}{Why keep movie connections in check?}
   \begin{itemize}
-    \item Movies with many likes can end up strongly connected to other movies.
-    \item A few large connections can dominate the recommendation scores.\\
-    $\Rightarrow$ A movie on top of the list no matter what.
+    \item For rarely liked movies, very strong coincidental connections can arise.
+    \item Example: 4 of the 5 viewers who liked a rare movie also liked
+      \emph{Totoro}. The connection is 0.8, based on just 4 people.
+    \item A penalty $\lambda$ shrinks connections built on little evidence;
+      well-supported ones barely change.
   \end{itemize}
+\end{frame}
 
+\begin{frame}{L2: penalise large connections}
   \[
     \min_X \quad \underbrace{\|H - XH\|_F^2}_{\text{difference in likes}}
-    \qquad + \underbrace{\lambda\|X\|_F^2,}_{\text{penalty for large connections}}
-    \qquad \text{subject to} \quad \underbrace{X_{ii} = 0}_{\text{no self-prediction}}
+    \; + \; \underbrace{\lambda\|X\|_F^2}_{\text{penalty for large connections}}
+  \]
+  \[
+    \text{subject to} \quad \underbrace{X_{ii} = 0}_{\text{no self-prediction}}
   \]
 
+  \vspace{1em}
   \begin{center}
     $\lambda$ sets the penalty; how to set it?
   \end{center}
@@ -155,14 +162,16 @@ Why?
 
 \begin{frame}{Is 0.026 good?}
   \begin{center}
-    \begin{tabular}{lcc}
-      Recommender & Validation Recall@10 & vs.\ random \\
+    \begin{tabular}{lccc}
+      Recommender & Validation & Test & vs.\ random \\
       \hline
-      Random 10 movies & $\approx 0.010$ & $1\times$ \\
-      Popularity (same list for everyone) & $0.019$ & $1.9\times$ \\
-      L1, $\lambda = 10$ & $0.023$ & $2.3\times$ \\
-      L2, $\lambda = 10{,}000$ & $0.026$ & $2.6\times$ \\
+      Random 10 movies & $\approx 0.010$ & $\approx 0.010$ & $1\times$ \\
+      Popularity (same list for everyone) & $0.019$ & $0.018$ & $1.9\times$ \\
+      L1, $\lambda = 10$ & $0.023$ & $0.023$ & $2.3\times$ \\
+      L2, $\lambda = 10{,}000$ & $0.026$ & $0.025$ & $2.6\times$ \\
     \end{tabular}
+
+    \footnotesize Recall@10. Test viewers were scored once, after $\lambda$ was chosen.
   \end{center}
 
   \begin{itemize}
@@ -196,7 +205,7 @@ Why?
     \qquad \text{subject to} \quad X_{ii} = 0
   \]
 
-  \small The Streamlit demo currently uses L2; the L1 solver is available in the Python code.
+  \small In the demo, L2 is trained live; L1 is precomputed because fitting it takes too long.
 
 \end{frame}
 
