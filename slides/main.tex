@@ -34,9 +34,9 @@
   \end{center}
 
   \begin{itemize}
-    \item Learn movie-to-movie relationships from synthetic viewer likes.
+    \item Learn movie-to-movie connections from synthetic viewer likes.
     \item Use a new viewer's favorites to rank unseen movies in IMDb's Top 1000.
-    \item Compare L2 and L1 regularization, then try recommendations in Streamlit.
+    \item Compare L2 and L1 regularization, then try it yourself in a Streamlit app.
   \end{itemize}
 
   \slidenote{Synthetic preferences make this a teaching example, not evidence
@@ -61,13 +61,13 @@
 
 \begin{frame}{What to do with your sparse vector?}
   \begin{itemize}
-    \item Set up a simple linear model with a matrix $X$ of movie-to-movie relationships.
+    \item Set up a simple linear model with a matrix $X$ of movie-to-movie connections.
     \item Multiply your sparse vector by this matrix to get scores for all movies.
     \item Rank the movies by these scores to generate recommendations.
   \end{itemize}
 
   \begin{center}
-    Where to get this matrix?
+    Where do we get this matrix?
   \end{center}
 
 \end{frame}
@@ -85,7 +85,7 @@
   \end{block}
 \end{frame}
 
-\begin{frame}{Learning movie-to-movie relationships}
+\begin{frame}{Learning movie-to-movie connections}
   \begin{itemize}
     \item Collect one sparse like-vector per viewer.
     \item Stack them as columns of $H \in \{0,1\}^{M \times N}$.
@@ -98,7 +98,7 @@
 
   \begin{itemize}
     \item $X = I$ copies the input likes: a trivial perfect reconstruction.
-    \item Forbid self-prediction: $\operatorname{diag}(X) = 0$.
+    \item So forbid self-prediction: $\operatorname{diag}(X) = 0$.
   \end{itemize}
 
   \slidenote{$M$: movies \qquad $N$: viewers}
@@ -111,12 +111,11 @@
 \]
 
 \begin{itemize}
-  \item First term: reconstruction error
+  \item Objective: how far the predicted likes are from the actual ones
   \item Constraint: no self-prediction
 \end{itemize}
 
-\vspace{1em}
-\slidenote{The Frobenius norm measures the sum of squared differences between the predicted and actual likes.}
+\slidenote{The squared Frobenius norm is the sum of squared differences between predicted and actual likes.}
 \end{frame}
 
 \begin{frame}{Why keep movie connections in check?}
@@ -129,7 +128,7 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{L2: penalise large connections}
+\begin{frame}{L2: penalize large connections}
   \[
     \min_X \quad \underbrace{\|H - XH\|_F^2}_{\text{difference in likes}}
     \; + \; \underbrace{\lambda\|X\|_F^2}_{\text{penalty for large connections}}
