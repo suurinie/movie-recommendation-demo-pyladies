@@ -282,7 +282,7 @@
       \small\texttt{github.com/suurinie/\\movie-recommendation-demo-pyladies}
 
       \vspace{0.8em}
-      \normalsize Need to install \texttt{uv}? See the next slide.
+      \normalsize We use \texttt{uv}, the Python package manager.
     \end{column}
     \begin{column}{0.3\textwidth}
       \centering
@@ -299,34 +299,10 @@ uv sync -{}-locked
 uv run streamlit run src/movie_demo/app.py
 \end{semiverbatim}
 
-  \small Then open the local URL that the last command prints.
-\end{frame}
+  \small Then open the local URL that the last command prints.\\
+  First run: if Streamlit asks for your email, just press Enter.
 
-\begin{frame}[fragile]{Setup help}
-  \small
-  \textbf{Install uv once}, then open a \textbf{new} terminal so \texttt{uv} is found:
-
-  \scriptsize
-\begin{semiverbatim}
-# macOS with Homebrew
-brew install uv
-
-# macOS / Linux
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Windows (PowerShell)
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-\end{semiverbatim}
-
-  \small
-  \textbf{First run:}
-  \begin{itemize}
-    \item Streamlit may ask for your email: just press Enter.
-    \item Windows may ask to allow \texttt{python.exe} through the firewall: allow it.
-  \end{itemize}
-
-  \textbf{Prefer not to install uv?} Use pip with Python~3.12 or newer;
-  see the README.
+  \slidenote{No \texttt{uv}, or prefer not to install it? See the README.}
 \end{frame}
 
 \end{document}
