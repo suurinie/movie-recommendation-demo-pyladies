@@ -6,7 +6,7 @@ unseen movies the selected model recommends.
 
 ## Get started
 
-The project uses Python 3.12 and [uv](https://docs.astral.sh/uv/getting-started/installation/).
+The project uses Python 3.12 or newer and [uv](https://docs.astral.sh/uv/getting-started/installation/).
 You do not need to install Python yourself: uv downloads the right version.
 
 ### 1. Install uv (once)
@@ -29,6 +29,11 @@ Windows (PowerShell):
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
+or, with winget: `winget install --id=astral-sh.uv -e`
+
+Linux: your distribution may package uv (for example Arch, Fedora); otherwise
+use the script above, or `pipx install uv`.
+
 Then **open a new terminal** so the `uv` command is found.
 
 ### 2. Get and run the demo
@@ -47,36 +52,34 @@ On the first run you may see two one-time prompts:
 - Streamlit asks for your email in the terminal: just press Enter.
 - Windows Firewall asks whether to allow `python.exe`: allow it.
 
-### Prefer not to install uv?
-
-Use pip in a Python 3.12 virtual environment instead. After cloning, from the
-project folder:
-
-macOS / Linux:
-
-```bash
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -e .
-streamlit run src/movie_demo/app.py
-```
-
-Windows (PowerShell):
-
-```powershell
-py -3.12 -m venv .venv
-.venv\Scripts\Activate.ps1
-pip install -e .
-streamlit run src/movie_demo/app.py
-```
-
-pip does not use the lock file, so it may install newer package versions than
-the ones the demo was tested with.
-
 The demo uses the included dataset, so you do not need to download a movie
 catalog or generate data. The viewers are synthetic, generated from movie
 genres, directors and actors; see the [author and developer guide](./AUTHORING.md)
 for details.
+
+### Prefer not to install uv?
+
+Use pip with Python 3.12 or newer instead. After cloning, from the project
+folder (no virtual environment activation needed):
+
+macOS / Linux:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -e .
+.venv/bin/python -m streamlit run src/movie_demo/app.py
+```
+
+Windows (PowerShell or cmd):
+
+```powershell
+py -m venv .venv
+.venv\Scripts\python -m pip install -e .
+.venv\Scripts\python -m streamlit run src/movie_demo/app.py
+```
+
+pip does not use the lock file, so it may install newer package versions than
+the ones the demo was tested with.
 
 ## Try the demo
 
