@@ -1,5 +1,7 @@
 \documentclass[aspectratio=169]{beamer}
 
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{mathtools}
 \usepackage{qrcode}
 \usepackage{tikz}
@@ -123,12 +125,17 @@
     \item For rarely liked movies, very strong coincidental connections can arise.
     \item Example: 4 of the 5 viewers who liked a rare movie also liked
       \emph{Totoro}. The connection is 0.8, based on just 4 people.
-    \item A penalty $\lambda$ shrinks connections built on little evidence;
+    \item A penalty on large connections shrinks those built on little evidence;
       well-supported ones barely change.
   \end{itemize}
+
+  \vspace{1em}
+  \begin{center}
+    Adding such a penalty is called \textbf{regularization}.
+  \end{center}
 \end{frame}
 
-\begin{frame}{L2: penalize large connections}
+\begin{frame}{L2 regularization: penalize large connections}
   \[
     \min_X \quad \underbrace{\|H - XH\|_F^2}_{\text{difference in likes}}
     \; + \; \underbrace{\lambda\|X\|_F^2}_{\text{penalty for large connections}}
@@ -172,7 +179,7 @@
   optimistic, and you only find out in production.
 \end{frame}
 
-\begin{frame}{Is 0.026 good?}
+\begin{frame}{Results}
   \begin{center}
     \begin{tabular}{lccc}
       Recommender & \textbf{Validation} & \textbf{Test} & vs.\ random \\
@@ -185,8 +192,12 @@
       Perfect model (knows true tastes) & $0.065$ & $0.066$ & $6.5\times$ \\
     \end{tabular}
 
-    \footnotesize Recall@10. Test viewers were scored once, after $\lambda$ was chosen.
+    \vspace{1.5em}
+    Our L2 model gets Recall@10 = 0.026.\\
+    Is that good? Compare it with the baselines above.
   \end{center}
+
+  \slidenote{All scores are Recall@10. Test viewers were scored once, after $\lambda$ was chosen.}
 \end{frame}
 
 \begin{frame}{What the numbers mean}
@@ -271,7 +282,7 @@
       \small\texttt{github.com/suurinie/\\movie-recommendation-demo-pyladies}
 
       \vspace{0.8em}
-      \normalsize No \texttt{uv} yet? See the next slide.
+      \normalsize Need to install \texttt{uv}? See the next slide.
     \end{column}
     \begin{column}{0.3\textwidth}
       \centering
@@ -284,7 +295,7 @@
 \begin{semiverbatim}
 git clone https://github.com/suurinie/movie-recommendation-demo-pyladies.git
 cd movie-recommendation-demo-pyladies
-uv sync --locked
+uv sync -{}-locked
 uv run streamlit run src/movie_demo/app.py
 \end{semiverbatim}
 
@@ -297,6 +308,9 @@ uv run streamlit run src/movie_demo/app.py
 
   \scriptsize
 \begin{semiverbatim}
+# macOS with Homebrew
+brew install uv
+
 # macOS / Linux
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
@@ -311,8 +325,8 @@ powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | ie
     \item Windows may ask to allow \texttt{python.exe} through the firewall: allow it.
   \end{itemize}
 
-  \textbf{No uv?} In a Python~3.12 virtual environment:
-  \texttt{pip install -e .}, then \texttt{streamlit run src/movie\_demo/app.py}.
+  \textbf{Prefer not to install uv?} Use pip in a Python~3.12 virtual
+  environment; see the README.
 \end{frame}
 
 \end{document}

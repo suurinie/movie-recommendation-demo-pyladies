@@ -11,7 +11,13 @@ You do not need to install Python yourself: uv downloads the right version.
 
 ### 1. Install uv (once)
 
-macOS / Linux:
+macOS with [Homebrew](https://brew.sh):
+
+```bash
+brew install uv
+```
+
+macOS / Linux, without Homebrew:
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -41,8 +47,31 @@ On the first run you may see two one-time prompts:
 - Streamlit asks for your email in the terminal: just press Enter.
 - Windows Firewall asks whether to allow `python.exe`: allow it.
 
-No uv? In a Python 3.12 virtual environment, run `pip install -e .` and then
-`streamlit run src/movie_demo/app.py`.
+### Prefer not to install uv?
+
+Use pip in a Python 3.12 virtual environment instead. After cloning, from the
+project folder:
+
+macOS / Linux:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+streamlit run src/movie_demo/app.py
+```
+
+Windows (PowerShell):
+
+```powershell
+py -3.12 -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -e .
+streamlit run src/movie_demo/app.py
+```
+
+pip does not use the lock file, so it may install newer package versions than
+the ones the demo was tested with.
 
 The demo uses the included dataset, so you do not need to download a movie
 catalog or generate data. The viewers are synthetic, generated from movie
