@@ -153,6 +153,27 @@ Why?
 
 \end{frame}
 
+\begin{frame}{Is 0.026 good?}
+  \begin{center}
+    \begin{tabular}{lcc}
+      Recommender & Validation Recall@10 & vs.\ random \\
+      \hline
+      Random 10 movies & $\approx 0.010$ & $1\times$ \\
+      Popularity (same list for everyone) & $0.019$ & $1.9\times$ \\
+      L1, $\lambda = 10$ & $0.023$ & $2.3\times$ \\
+      L2, $\lambda = 10{,}000$ & $0.026$ & $2.6\times$ \\
+    \end{tabular}
+  \end{center}
+
+  \begin{itemize}
+    \item L2 finds about 35\% more hidden likes than popularity.
+    \item At volume this is money: e.g.\ 10 million top-ten lists a day
+      $\Rightarrow$ $\sim$35\% more successful recommendations, for one matrix solve.
+    \item The ceiling is low by design: about 20 likes out of 1000 movies, partly at random.
+      Low absolute numbers are normal for recommenders.
+  \end{itemize}
+\end{frame}
+
 \begin{frame}{The solution}
   \begin{itemize}
     \item This problem is a constrained least squares problem with an L2 regularization term.
