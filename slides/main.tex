@@ -1,6 +1,7 @@
 \documentclass[aspectratio=169]{beamer}
 
 \usepackage{mathtools}
+\usepackage{qrcode}
 
 \usetheme{default}
 \setbeamertemplate{navigation symbols}{}
@@ -240,6 +241,33 @@
     \item L1 regularization encourages sparsity but requires iterative optimization.
     \item Proper train-validation-test split is crucial for selecting the regularization parameter $\lambda$.
   \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Try it yourself}
+  \begin{columns}[T]
+    \begin{column}{0.62\textwidth}
+      \footnotesize
+\begin{semiverbatim}
+git clone https://github.com/suurinie/\\
+    movie-recommendation-demo-pyladies.git
+cd movie-recommendation-demo-pyladies
+uv sync --locked
+uv run streamlit run src/movie_demo/app.py
+\end{semiverbatim}
+
+      \vspace{0.5em}
+      No uv? Install it from \texttt{docs.astral.sh/uv}, or in a
+      Python~3.12 virtual environment run \texttt{pip install -e .}
+      and then \texttt{streamlit run src/movie\_demo/app.py}.
+    \end{column}
+    \begin{column}{0.34\textwidth}
+      \centering
+      \qrcode[height=3.8cm]{https://github.com/suurinie/movie-recommendation-demo-pyladies}
+
+      \vspace{0.5em}
+      \scriptsize github.com/suurinie/\\movie-recommendation-demo-pyladies
+    \end{column}
+  \end{columns}
 \end{frame}
 
 \end{document}
