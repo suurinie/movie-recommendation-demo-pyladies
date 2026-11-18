@@ -15,6 +15,7 @@ from movie_demo.model_selection import (
     evaluate_on_test,
     evaluate_ranking,
     make_validation_holdout,
+    random_recall_at_k,
     select_regularization,
 )
 from movie_demo.splitting import split_viewers
@@ -214,3 +215,27 @@ def test_evaluate_on_test_rejects_mismatched_movies() -> None:
 
     with pytest.raises(ValueError, match="movie dimensions"):
         _ = evaluate_on_test(model, split.train, split.test[:7, :])
+
+
+def test_random_recall_matches_simulated_random_recommendations() -> None:
+    validation = _structured_matrix(200)
+    holdout = make_validation_holdout(validation, input_likes=2, seed=5)
+    rng = np.random.default_rng(9)
+    recalls = []
+    for viewer in range(validation.shape[1]):
+        shown = holdout.inputs[:, [viewer]].indices
+        hidden = holdout.targets[:, [viewer]].indices
+        unseen = np.setdiff1d(np.arange(validation.shape[0]), shown)
+        for _ in range(50):
+            picked = rng.choice(unseen, size=3, replace=False)
+            recalls.append(np.isin(hidden, picked).mean())
+
+    expected = random_recall_at_k(validation.shape[0], input_likes=2, k=3)
+
+    assert expected == pytest.approx(3 / 6)
+    assert float(np.mean(recalls)) == pytest.approx(expected, abs=0.01)
+
+
+def test_random_recall_rejects_no_unseen_movies() -> None:
+    with pytest.raises(ValueError, match="unseen"):
+        _ = random_recall_at_k(5, input_likes=5, k=10)

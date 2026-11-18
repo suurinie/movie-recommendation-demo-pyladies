@@ -94,11 +94,13 @@ def test_app_trains_before_favorite_recommendations() -> None:
     assert app.session_state["selection_viewer_counts"] == (40_000, 5_000, 5_000)
     assert app.dataframe
     assert "Recall@10" in [item.value for item in app.subheader]
-    rows = _comparison_rows(app.session_state["selection_result"])
-    assert rows[-1]["Model"] == "Popularity baseline"
+    rows = _comparison_rows(app.session_state["selection_result"], 0.01)
+    assert rows[-1] == {"Model": "Random baseline", "Recall@10": 0.01}
+    assert rows[-2]["Model"] == "Popularity baseline"
     assert sum(row["Model"] == "Popularity baseline" for row in rows) == 1
-    assert rows[-2]["Model"] == "λ = 10000 (selected)"
-    assert set(rows[-1]) == {"Model", "Recall@10"}
+    assert rows[-3]["Model"] == "λ = 10000 (selected)"
+    assert set(rows[-2]) == {"Model", "Recall@10"}
+    assert "Random baseline" in [metric.label for metric in app.metric]
     assert app.dataframe
 
     favorites = next(box for box in app.multiselect if box.label == "Your favorites")

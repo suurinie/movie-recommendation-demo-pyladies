@@ -34,6 +34,7 @@ from movie_demo.model_selection import (
     FinalTestScores,
     ModelSelectionResult,
     evaluate_on_test,
+    random_recall_at_k,
     select_regularization,
 )
 from movie_demo.splitting import DEFAULT_SPLIT_SEED, split_viewers
@@ -174,11 +175,14 @@ def _lambda_label(value: float) -> str:
     return f"{value:g}"
 
 
-def _comparison_rows(result: ModelSelectionResult) -> list[dict[str, str | float]]:
-    """Build table/chart rows: one per candidate λ, plus a popularity baseline.
+def _comparison_rows(
+    result: ModelSelectionResult, random_recall: float
+) -> list[dict[str, str | float]]:
+    """Build table/chart rows: one per candidate λ, plus two baselines.
 
-    The baseline recommends the most-liked movies to everyone, ignoring the
-    viewer. A model that does not beat it has learned nothing useful.
+    Popularity recommends the most-liked movies to everyone, ignoring the
+    viewer; a model that does not beat it has not learned to personalise.
+    Random is the floor: what ten random unseen movies would score.
     """
     rows = [
         {
@@ -200,20 +204,26 @@ def _comparison_rows(result: ModelSelectionResult) -> list[dict[str, str | float
             "Recall@10": result.popularity_metrics.recall_at_k,
         }
     )
+    rows.append({"Model": "Random baseline", "Recall@10": random_recall})
     return rows
 
 
-def _show_test_scores(test_scores: FinalTestScores) -> None:
-    """Render the final check on test viewers, next to the popularity baseline."""
+def _show_test_scores(test_scores: FinalTestScores, random_recall: float) -> None:
+    """Render the final check on test viewers, next to both baselines."""
     model_recall = test_scores.model_metrics.recall_at_k
     popularity_recall = test_scores.popularity_metrics.recall_at_k
-    test_col, popularity_col = st.columns(2)
+    test_col, popularity_col, random_col = st.columns(3)
     _ = test_col.metric(
         "Test Recall@10 (final check)",
         f"{model_recall:.4f}",
         delta=f"{model_recall - popularity_recall:+.4f} vs popularity",
     )
     _ = popularity_col.metric("Popularity baseline, test", f"{popularity_recall:.4f}")
+    _ = random_col.metric(
+        "Random baseline",
+        f"{random_recall:.4f}",
+        help="Expected score of ten random unseen movies.",
+    )
     _ = st.caption(
         f"Measured once on {test_scores.model_metrics.viewers:,} test viewers "
         "after λ was chosen; never used for training or selection."
@@ -324,10 +334,13 @@ def _show_model_selection(
     test_scores = cast(
         FinalTestScores | None, st.session_state.get("selection_test_scores")
     )
+    random_recall = random_recall_at_k(
+        movie_count, input_likes=DEFAULT_INPUT_LIKES, k=DEFAULT_CUTOFF
+    )
     if test_scores is not None:
-        _show_test_scores(test_scores)
+        _show_test_scores(test_scores, random_recall)
 
-    score_rows = _comparison_rows(result)
+    score_rows = _comparison_rows(result, random_recall)
     _ = st.dataframe(  # pyright: ignore[reportUnknownMemberType]
         score_rows, hide_index=True, width="stretch"
     )
@@ -342,8 +355,9 @@ def _show_model_selection(
                 "Recall@10: of the likes a viewer did not reveal, the fraction",
                 "that appear in their top ten recommendations (averaged over",
                 "validation viewers; 1.0 is perfect).",
-                "The popularity baseline recommends the same most-liked movies",
-                "to everyone, so beating it shows the model personalises.",
+                "Random picks ten unseen movies: the floor any model must beat.",
+                "Popularity recommends the same most-liked movies to everyone,",
+                "so beating it shows the model personalises.",
             )
         )
     )
@@ -383,7 +397,12 @@ def _show_precomputed_l1(movie_count: int) -> tuple[ItemLinearModel, float] | No
         f"Loaded precomputed weights fitted on {training_viewers:,} viewers; "
         f"λ was selected using {validation_viewers:,} validation viewers."
     )
-    _show_test_scores(test_scores)
+    _show_test_scores(
+        test_scores,
+        random_recall_at_k(
+            movie_count, input_likes=DEFAULT_INPUT_LIKES, k=DEFAULT_CUTOFF
+        ),
+    )
     return model, regularization
 
 

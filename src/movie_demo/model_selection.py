@@ -290,3 +290,27 @@ def evaluate_on_test(
             _popularity_model(training), holdout, k=k, batch_size=batch_size
         ),
     )
+
+
+def random_recall_at_k(
+    num_movies: int,
+    *,
+    input_likes: int = DEFAULT_INPUT_LIKES,
+    k: int = DEFAULT_CUTOFF,
+) -> float:
+    """Expected Recall@k when recommending k unseen movies at random.
+
+    Every hidden like has the same chance, k / (unseen movies), of landing in
+    a random top k, whoever the viewer is. So the expected recall is exactly
+    that fraction; no simulation is needed.
+    """
+    if type(num_movies) is not int or type(input_likes) is not int:
+        raise TypeError("num_movies and input_likes must be integers.")
+    if type(k) is not int:
+        raise TypeError("k must be an integer.")
+    if k < 1:
+        raise ValueError("k must be at least 1.")
+    unseen = num_movies - input_likes
+    if input_likes < 1 or unseen < 1:
+        raise ValueError("At least one movie must remain unseen after the inputs.")
+    return min(k, unseen) / unseen
