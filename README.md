@@ -7,7 +7,25 @@ unseen movies the selected model recommends.
 ## Get started
 
 The project uses Python 3.12 and [uv](https://docs.astral.sh/uv/getting-started/installation/).
-From a terminal:
+You do not need to install Python yourself: uv downloads the right version.
+
+### 1. Install uv (once)
+
+macOS / Linux:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Windows (PowerShell):
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Then **open a new terminal** so the `uv` command is found.
+
+### 2. Get and run the demo
 
 ```bash
 git clone https://github.com/suurinie/movie-recommendation-demo-pyladies.git
@@ -16,10 +34,20 @@ uv sync --locked
 uv run streamlit run src/movie_demo/app.py
 ```
 
-Open the local URL printed in the terminal. The demo uses the included
-dataset, so you do not need to download a movie catalog or generate data. The
-viewers are synthetic, generated from movie genres, directors and actors; see
-the [author and developer guide](./AUTHORING.md) for details.
+Open the local URL printed in the terminal.
+
+On the first run you may see two one-time prompts:
+
+- Streamlit asks for your email in the terminal: just press Enter.
+- Windows Firewall asks whether to allow `python.exe`: allow it.
+
+No uv? In a Python 3.12 virtual environment, run `pip install -e .` and then
+`streamlit run src/movie_demo/app.py`.
+
+The demo uses the included dataset, so you do not need to download a movie
+catalog or generate data. The viewers are synthetic, generated from movie
+genres, directors and actors; see the [author and developer guide](./AUTHORING.md)
+for details.
 
 ## Try the demo
 

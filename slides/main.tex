@@ -265,30 +265,54 @@
 \end{frame}
 
 \begin{frame}[fragile]{Try it yourself}
-  \begin{columns}[T]
-    \begin{column}{0.62\textwidth}
-      \footnotesize
+  \begin{columns}[c]
+    \begin{column}{0.6\textwidth}
+      Scan the QR code, or go to\\[0.3em]
+      \small\texttt{github.com/suurinie/\\movie-recommendation-demo-pyladies}
+
+      \vspace{0.8em}
+      \normalsize No \texttt{uv} yet? See the next slide.
+    \end{column}
+    \begin{column}{0.3\textwidth}
+      \centering
+      \qrcode[height=3cm]{https://github.com/suurinie/movie-recommendation-demo-pyladies}
+    \end{column}
+  \end{columns}
+
+  \vspace{1em}
+  \scriptsize
 \begin{semiverbatim}
-git clone https://github.com/suurinie/\\
-    movie-recommendation-demo-pyladies.git
+git clone https://github.com/suurinie/movie-recommendation-demo-pyladies.git
 cd movie-recommendation-demo-pyladies
 uv sync --locked
 uv run streamlit run src/movie_demo/app.py
 \end{semiverbatim}
 
-      \vspace{0.5em}
-      No uv? Install it from \texttt{docs.astral.sh/uv}, or in a
-      Python~3.12 virtual environment run \texttt{pip install -e .}
-      and then \texttt{streamlit run src/movie\_demo/app.py}.
-    \end{column}
-    \begin{column}{0.34\textwidth}
-      \centering
-      \qrcode[height=3.8cm]{https://github.com/suurinie/movie-recommendation-demo-pyladies}
+  \small Then open the local URL that the last command prints.
+\end{frame}
 
-      \vspace{0.5em}
-      \scriptsize github.com/suurinie/\\movie-recommendation-demo-pyladies
-    \end{column}
-  \end{columns}
+\begin{frame}[fragile]{Setup help}
+  \small
+  \textbf{Install uv once}, then open a \textbf{new} terminal so \texttt{uv} is found:
+
+  \scriptsize
+\begin{semiverbatim}
+# macOS / Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+\end{semiverbatim}
+
+  \small
+  \textbf{First run:}
+  \begin{itemize}
+    \item Streamlit may ask for your email: just press Enter.
+    \item Windows may ask to allow \texttt{python.exe} through the firewall: allow it.
+  \end{itemize}
+
+  \textbf{No uv?} In a Python~3.12 virtual environment:
+  \texttt{pip install -e .}, then \texttt{streamlit run src/movie\_demo/app.py}.
 \end{frame}
 
 \end{document}
