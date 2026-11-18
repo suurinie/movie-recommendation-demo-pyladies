@@ -201,12 +201,22 @@
 \end{frame}
 
 \begin{frame}{The solution}
+  \begin{center}
+    \large One matrix solve gives all connections at once.
+  \end{center}
+
   \begin{itemize}
-    \item This problem is a constrained least squares problem with an L2 regularization term.
-    \item It has a closed-form solution for each $\lambda$ using standard linear algebra techniques.
+    \item A constrained least-squares problem with an L2 penalty.
+    \item Closed-form solution for each $\lambda$: no iterations needed.
   \end{itemize}
 
-  \slidenote{Sketch of proof: build the unconstrained Lagrangian problem and differentiate to get a 1st degree problem.}
+  \[
+    X = I - \operatorname{diag}(P)^{-1} P,
+    \qquad P = (HH^\top + \lambda I)^{-1}
+  \]
+
+  \slidenote{Proof sketch: add Lagrange multipliers for $\operatorname{diag}(X) = 0$
+  and set the derivative to zero. The result is a linear system.}
 \end{frame}
 
 \begin{frame}{Sparse solutions}
